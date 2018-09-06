@@ -4,7 +4,7 @@
   become: no
   vars:
     datacenter: cloud
-    folder: /cloud/testhost/host
+    folder: /cloud/testhost
 
   tasks:
     - name: add ESXi Host to vCenter under a specific folder

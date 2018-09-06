@@ -15,7 +15,7 @@
         datacenter_name: "{{ datacenter }}"
         folder: "{{ folder }}"
         esxi_hostname: '{{ ansible_host }}'
-        esxi_username: '{{ ansible_user | default(ansible_ssh_user) }}'
+        esxi_username: '{{ ansible_user | default("root") }}'
         esxi_password: '{{ ansible_password }}'
         state: present
         add_connected: True

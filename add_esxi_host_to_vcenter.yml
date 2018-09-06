@@ -19,6 +19,7 @@
         esxi_password: '{{ ansible_password }}'
         state: present
         add_connected: True
+      ignore_errors: yes
       delegate_to: localhost
 
     - name: exit maintenance mode
@@ -29,3 +30,5 @@
         esxi_hostname: '{{ ansible_host }}'
         timeout: 3600
         state: absent
+      ignore_errors: yes
+      delegate_to: localhost

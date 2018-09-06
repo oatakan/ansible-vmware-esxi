@@ -1,10 +1,10 @@
-- name: Add ESXi host to vcenter
+- name: add ESXi host to vcenter
   hosts: all
   gather_facts: False
   become: no
   vars:
     datacenter: cloud
-    folder: /cloud/testhost
+    folder: /cloud/host/testhost
 
   tasks:
     - name: add ESXi Host to vCenter under a specific folder

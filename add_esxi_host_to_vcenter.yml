@@ -20,3 +20,12 @@
         state: present
         add_connected: True
       delegate_to: localhost
+
+    - name: exit maintenance mode
+      vmware_maintenancemode:
+        hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+        username: "{{ lookup('env', 'VMWARE_USER') }}"
+        password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+        esxi_hostname: '{{ ansible_host }}'
+        timeout: 3600
+        state: absent

@@ -9,9 +9,9 @@
   tasks:
     - name: add ESXi Host to vCenter under a specific folder
       vmware_host:
-        hostname: "{{ lookup('env', 'VMWARE_HOST')|default(providers.vcenter.hostname) }}"
-        username: "{{ lookup('env', 'VMWARE_USER')|default(providers.vcenter.username) }}"
-        password: "{{ lookup('env', 'VMWARE_PASSWORD')|default(providers.vcenter.password) }}"
+        hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+        username: "{{ lookup('env', 'VMWARE_USER') }}"
+        password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
         datacenter_name: "{{ datacenter }}"
         folder: "{{ folder }}"
         esxi_hostname: '{{ ansible_host }}'

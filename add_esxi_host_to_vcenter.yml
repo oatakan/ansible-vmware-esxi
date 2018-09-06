@@ -27,17 +27,17 @@
         hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
         username: "{{ lookup('env', 'VMWARE_USER') }}"
         password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-          datacenter_name: '{{ datacenter }}'
-          datastore_name: '{{ item.name }}'
-          datastore_type: '{{ item.type }}'
-          nfs_server: '{{ item.server }}'
-          nfs_path: '{{ item.path }}'
-          nfs_ro: yes
-          esxi_hostname: '{{ ansible_host }}'
-          state: present
+        datacenter_name: '{{ datacenter }}'
+        datastore_name: '{{ item.name }}'
+        datastore_type: '{{ item.type }}'
+        nfs_server: '{{ item.server }}'
+        nfs_path: '{{ item.path }}'
+        nfs_ro: yes
+        esxi_hostname: '{{ ansible_host }}'
+        state: present
       delegate_to: localhost
       with_items:
-          - { 'name': 'NasDS_vol01', 'server': '192.168.1.103', 'path': '/mnt/vault/work/install/iso', 'type': 'nfs'}
+        - { 'name': 'NasDS_vol01', 'server': '192.168.1.103', 'path': '/mnt/vault/work/install/iso', 'type': 'nfs'}
 
     - name: exit maintenance mode
       vmware_maintenancemode:

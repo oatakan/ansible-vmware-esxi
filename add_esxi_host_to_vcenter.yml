@@ -1,7 +1,6 @@
 - name: Add ESXi host to vcenter
   hosts: all
   gather_facts: False
-  connection: local
   become: no
   vars:
     datacenter: cloud
@@ -15,8 +14,9 @@
         password: "{{ lookup('env', 'VMWARE_PASSWORD')|default(providers.vcenter.password) }}"
         datacenter_name: "{{ datacenter }}"
         folder: "{{ folder }}"
-        esxi_hostname: '{{ esxi_hostname }}'
-        esxi_username: '{{ esxi_username }}'
-        esxi_password: '{{ esxi_password }}'
+        esxi_hostname: '{{ ansible_host }}'
+        esxi_username: '{{ ansible_user | default(ansible_ssh_user) }}'
+        esxi_password: '{{ ansible_password }}'
         state: present
         add_connected: True
+      delegate_to: localhost

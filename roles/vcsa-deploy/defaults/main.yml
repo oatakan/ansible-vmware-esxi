@@ -17,7 +17,7 @@ vcenter_appliance_name: vcenter
 vcenter_appliance_size: small
 
 target_esx_datastore: datastore1
-target_esx_portgroup: Management
+target_esx_portgroup: mgmt
 
 ssh_enable: true
 time_tools_sync: false

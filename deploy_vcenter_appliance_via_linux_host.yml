@@ -26,6 +26,7 @@
         opts: nolock
         state: mounted
       delegate_to: localhost
+      become: yes
 
   roles:
     - role: vcsa-deploy-via-linux-host
@@ -37,6 +38,7 @@
         path: '{{ network_mount_dir }}'
         state: unmounted
       delegate_to: localhost
+      become: yes
 
     - name: ensure the mount directory doesn't exist
       file:

@@ -4,6 +4,9 @@
   become: no
   vars:
     network_share: 192.168.1.103:/mnt/vault/work/install
+    vcenter_netmask: 255.255.255.0
+    vcenter_gateway: 192.168.1.254
+    vcenter_net_prefix: 24
 
   pre_taks:
     - name: ensure the mount directory exists

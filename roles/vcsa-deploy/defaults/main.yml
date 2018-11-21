@@ -23,7 +23,7 @@ time_tools_sync: false
 net_addr_family: ipv4
 
 vcenter_ip_address: "{{ lookup('env', 'VMWARE_HOST')|default('') }}"
-vcenter_username: 'administrator@{{ sso_domain_name }}'
+vcenter_username: "{{ lookup('env', 'VMWARE_USER')|default('') }}"
 vcenter_password: "{{ lookup('env', 'VMWARE_PASSWORD')|default('') }}"
 vcenter_fqdn: "vcenter{{ vcenter_ip_address.split('.')[-1] }}.{{ sso_domain_name }}"
 vcenter_netmask: 255.255.255.0

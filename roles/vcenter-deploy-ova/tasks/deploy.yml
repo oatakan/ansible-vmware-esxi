@@ -1,5 +1,17 @@
 ---
 
+- name: gather information about vms and templates
+  vmware_vm_facts:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: no
+  delegate_to: localhost
+  register: vm_facts
+
+- debug:
+    var: vm_facts
+
 - name: deploy ovas
   command: >
     {{ ovftool }}
@@ -18,6 +30,7 @@
   loop: "{{ ova_files }}"
   when:
     - ova_files is defined
+    - item not in vm_facts
 
 #- name: deploy ovas
 #  command: >

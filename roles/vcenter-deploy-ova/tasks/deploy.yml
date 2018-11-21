@@ -14,7 +14,26 @@
     --diskMode='{{ disk_mode }}'
     --name="{{ item | replace('.ova','') | replace('-ovf','') }}"
     '{{ network_mount_dir }}/{{ ova_path}}/{{ item }}'
-    vi://"{{ lookup('env', 'VMWARE_USER') | urlencode }}":"{{ lookup('env', 'VMWARE_PASSWORD') | urlencode }}"@"{{ lookup('env', 'VMWARE_HOST') }}":443/"{{ vcenter_datacenter }}"/host/"{{ vcenter_cluster }}"/
+    vi://"{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}":"{{ ansible_password | default(ansible_ssh_password) | urlencode }}"@{{ ansible_host }}/
   loop: "{{ ova_files }}"
   when:
     - ova_files is defined
+
+#- name: deploy ovas
+#  command: >
+#    {{ ovftool }}
+#    --acceptAllEulas
+#    --noSSLVerify
+#    --X:injectOvfEnv
+#    --allowExtraConfig
+#    --X:connectionFileTransferRetryCount=3
+#    --sourceType=OVA
+#    --net:"Network 1"='{{ target_esx_portgroup }}'
+#    --datastore='{{ target_esx_datastore }}'
+#    --diskMode='{{ disk_mode }}'
+#    --name="{{ item | replace('.ova','') | replace('-ovf','') }}"
+#    '{{ network_mount_dir }}/{{ ova_path}}/{{ item }}'
+#    vi://"{{ lookup('env', 'VMWARE_USER') | urlencode }}":"{{ lookup('env', 'VMWARE_PASSWORD') | urlencode }}"@"{{ lookup('env', 'VMWARE_HOST') }}":443/"{{ vcenter_datacenter }}"/host/"{{ vcenter_cluster }}"/
+#  loop: "{{ ova_files }}"
+#  when:
+#    - ova_files is defined

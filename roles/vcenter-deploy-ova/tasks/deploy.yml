@@ -10,7 +10,9 @@
   register: vm_facts
 
 - debug:
-    var: vm_facts.virtual_machines
+    msg: "{{ item }} is found"
+  loop: vm_facts.virtual_machines
+  when: "'windows' in item"
 
 - name: deploy ovas
   command: >
@@ -30,7 +32,7 @@
   loop: "{{ ova_files }}"
   when:
     - ova_files is defined
-    - item != vm_facts.virtual_machines | first
+    - item != vm_facts.virtual_machines
 
 #- name: deploy ovas
 #  command: >

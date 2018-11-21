@@ -1,0 +1,6 @@
+---
+
+ova_files: []
+
+vcenter_datacenter: cloud
+vcenter_cluster: mylab

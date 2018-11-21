@@ -1,0 +1,34 @@
+---
+
+- name: create a snapshot
+  vmware_guest_snapshot:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: no
+    datacenter: '{{ vcenter_datacenter }}'
+    cluster: '{{ vcenter_cluster }}'
+    name: "{{ item | replace('.ova','') | replace('-ovf','') }}"
+    state: present
+    snapshot_name: Linked
+    description: Linked
+  delegate_to: localhost
+  loop: "{{ ova_files }}"
+  when:
+    - ova_files is defined
+
+- name: convert vm to template
+  vmware_guest:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: no
+    datacenter: '{{ vcenter_datacenter }}'
+    cluster: '{{ vcenter_cluster }}'
+    name: "{{ item | replace('.ova','') | replace('-ovf','') }}"
+    is_template: yes
+    folder: /{{ vcenter_datacenter }}/vm/template
+  delegate_to: localhost
+  loop: "{{ ova_files }}"
+  when:
+    - ova_files is defined

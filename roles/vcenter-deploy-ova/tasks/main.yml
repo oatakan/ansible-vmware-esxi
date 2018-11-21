@@ -1,0 +1,7 @@
+---
+
+- include_tasks: mount_nfs.yml
+
+- include_tasks: deploy.yml
+
+- include_tasks: unmount_nfs.yml

@@ -13,9 +13,8 @@
     var: vm_facts.virtual_machines
 
 - debug:
-    msg: "{{ item }} is found"
-  loop: vm_facts
-  when: "'windows' in item"
+    msg: "{{ item }}"
+  loop: vm_facts.virtual_machines
 
 - name: deploy ovas
   command: >

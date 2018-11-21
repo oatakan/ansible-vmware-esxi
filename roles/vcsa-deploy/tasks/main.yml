@@ -1,9 +1,26 @@
 ---
 
-- include_tasks: mount_nfs.yml
+- name: gather information about vms and templates
+  vmware_vm_facts:
+    hostname: "{{ ansible_host }}"
+    username: "{{ ansible_user | default(ansible_ssh_user) | default('root') }}"
+    password: "{{ ansible_password | default(ansible_ssh_password) }}"
+    validate_certs: no
+  delegate_to: localhost
+  register: vm_facts
 
-- include_tasks: deploy.yml
+- debug:
+    var: vm_facts
 
-- include_tasks: unmount_nfs.yml
+- block:
 
-- include_tasks: wait.yml
+    - include_tasks: mount_nfs.yml
+
+    - include_tasks: deploy.yml
+
+    - include_tasks: unmount_nfs.yml
+
+    - include_tasks: wait.yml
+
+  when:
+    - vcenter_appliance_name not in vm_facts.virtual_machines | list

@@ -9,9 +9,6 @@
   delegate_to: localhost
   register: vm_facts
 
-- debug:
-    var: vm_facts
-
 - name: deploy ovas
   command: >
     {{ ovftool }}

@@ -35,7 +35,7 @@
   loop: "{{ ova_files }}"
   when:
     - ova_files is defined
-    - item != vm_facts.virtual_machines | list
+    - item | replace('.ova','') | replace('-ovf','') != vm_facts.virtual_machines | list
 
 #- name: deploy ovas
 #  command: >

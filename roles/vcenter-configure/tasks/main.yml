@@ -24,7 +24,7 @@
     state: present
   delegate_to: localhost
 
-- name: create resource pools
+- name: ensure resource pools exist
   vmware_resource_pool:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
@@ -37,7 +37,7 @@
   delegate_to: localhost
   loop: "{{ vcenter_resource_pools }}"
 
-- name: create folders
+- name: ensure folders exist
   vcenter_folder:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
@@ -71,5 +71,5 @@
     validate_certs: no
     datacenter: '{{ vcenter_datacenter }}'
     name: "{{ vcenter_appliance_name }}"
-    dest_folder: /{{ vcenter_datacenter }}/Resources/infra
+    dest_folder: /{{ vcenter_datacenter }}/Resources/infra/vm
   delegate_to: localhost

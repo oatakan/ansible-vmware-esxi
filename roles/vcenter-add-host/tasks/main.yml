@@ -19,6 +19,6 @@
     esxi_username: "{{ ansible_user | default(ansible_ssh_user) | default('root') }}"
     esxi_password: "{{ ansible_password | default(ansible_ssh_password) }}"
     esxi_ssl_thumbprint: "{{ esxi_ssl_thumbprint.stdout | replace('SHA1 Fingerprint=','') }}"
-    state: present
+    state: absent
     add_connected: True
   delegate_to: localhost

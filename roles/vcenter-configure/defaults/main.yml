@@ -15,3 +15,5 @@ vcenter_vm_folders:
   - template
 
 vcenter_license: ''
+
+vcenter_appliance_name: vcenter

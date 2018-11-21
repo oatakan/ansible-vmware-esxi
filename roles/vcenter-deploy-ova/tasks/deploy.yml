@@ -10,8 +10,11 @@
   register: vm_facts
 
 - debug:
+    var: vm_facts.virtual_machines
+
+- debug:
     msg: "{{ item }} is found"
-  loop: vm_facts.virtual_machines
+  loop: vm_facts
   when: "'windows' in item"
 
 - name: deploy ovas

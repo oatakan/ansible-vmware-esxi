@@ -3,7 +3,8 @@
   gather_facts: no
   become: no
   vars:
-    network_share: 192.168.1.103:/mnt/vault/work/install
+    network_host: 192.168.1.103
+    network_path: /mnt/vault/work/install
     ova_files:
       - windows-10-1809-ovf.ova
       - rhel76-x64-bigdisk.ova

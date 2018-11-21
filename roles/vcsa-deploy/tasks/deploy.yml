@@ -9,9 +9,6 @@
 - debug:
     var: ova_file
 
-- pause:
-    minutes: 2
-
 - name: deploy appliance
   vmware_deploy_ovf:
     hostname: "{{ ansible_host }}"

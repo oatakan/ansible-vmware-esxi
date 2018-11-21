@@ -9,9 +9,6 @@
   delegate_to: localhost
   register: vm_facts
 
-- debug:
-    var: vm_facts
-
 - block:
 
     - include_tasks: mount_nfs.yml

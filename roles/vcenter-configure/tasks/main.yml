@@ -58,4 +58,6 @@
     license: "{{ vcenter_license }}"
     state: present
   delegate_to: localhost
-  when: vcenter_license is defined
+  when:
+    - vcenter_license is defined
+    - vcenter_license

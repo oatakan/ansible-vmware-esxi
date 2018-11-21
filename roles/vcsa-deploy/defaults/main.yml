@@ -26,7 +26,8 @@ net_addr_family: ipv4
 vcenter_ip_address: "{{ lookup('env', 'VMWARE_HOST')|default('') }}"
 vcenter_username: "{{ lookup('env', 'VMWARE_USER')|default('') }}"
 vcenter_password: "{{ lookup('env', 'VMWARE_PASSWORD')|default('') }}"
-vcenter_fqdn: "vcenter{{ vcenter_ip_address.split('.')[-1] }}.{{ sso_domain_name }}"
+#vcenter_fqdn: "vcenter{{ vcenter_ip_address.split('.')[-1] }}.{{ sso_domain_name }}"
+vcenter_fqdn: "{{ vcenter_ip_address }}"
 vcenter_netmask: 255.255.255.0
 vcenter_gateway: 192.168.1.254
 vcenter_net_prefix: 24

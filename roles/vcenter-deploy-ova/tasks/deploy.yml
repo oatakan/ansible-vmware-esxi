@@ -7,17 +7,14 @@
     --noSSLVerify
     --X:injectOvfEnv
     --allowExtraConfig
-    --X:enableHiddenProperties
-    --X:waitForIp
     --X:connectionFileTransferRetryCount=3
     --sourceType=OVA
-    --powerOn
     --net:"Network 1"='{{ target_esx_portgroup }}'
     --datastore='{{ target_esx_datastore }}'
     --diskMode='{{ disk_mode }}'
     --name="{{ item | replace('.ova','') | replace('-ovf','') }}"
     '{{ network_mount_dir }}/{{ ova_path}}/{{ item }}'
-    vi://"{{ lookup('env', 'VMWARE_USER') }}":"{{ lookup('env', 'VMWARE_PASSWORD') }}"@"{{ lookup('env', 'VMWARE_HOST') }}"/
+    vi://{{ lookup('env', 'VMWARE_USER') }}:{{ lookup('env', 'VMWARE_PASSWORD') }}@{{ lookup('env', 'VMWARE_HOST') }}/{{ vcenter_datacenter }}/host/{{ vcenter_cluster }}"
   loop: "{{ ova_files }}"
   when:
     - ova_files is defined

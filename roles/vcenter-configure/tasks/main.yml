@@ -11,7 +11,7 @@
   delegate_to: localhost
 
 - name: ensure cluster exists
-  vmware_datacenter:
+  vmware_cluster:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"

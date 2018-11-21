@@ -30,7 +30,7 @@
   loop: "{{ ova_files }}"
   when:
     - ova_files is defined
-    - item not in vm_facts
+    - item not in vm_facts.virtual_machines
 
 #- name: deploy ovas
 #  command: >

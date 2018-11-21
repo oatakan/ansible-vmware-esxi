@@ -9,7 +9,7 @@
     --allowExtraConfig
     --X:connectionFileTransferRetryCount=3
     --sourceType=OVA
-    --net:"Network 1"='{{ target_esx_portgroup }}'
+    --net:"nat"='{{ target_esx_portgroup }}'
     --datastore='{{ target_esx_datastore }}'
     --diskMode='{{ disk_mode }}'
     --name="{{ item | replace('.ova','') | replace('-ovf','') }}"

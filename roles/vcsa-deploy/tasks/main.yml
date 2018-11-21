@@ -1,5 +1,16 @@
 ---
 
+- name: test vcenter connectivity
+  uri:
+    url: https://{{ vcenter_fqdn }}
+    return_content: no
+    validate_certs: no
+  register: response
+  ignore_errors: yes
+
+- debug:
+    var: response
+
 - name: gather information about vms and templates
   vmware_vm_facts:
     hostname: "{{ ansible_host }}"

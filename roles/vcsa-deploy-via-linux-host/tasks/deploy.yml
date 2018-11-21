@@ -2,13 +2,13 @@
 
 - name: find ova file
   find:
-    paths: '{{ network_mount_dir }}/images'
-    patterns: 'VMware-vCenter-Server-Appliance-6.7.0*.ova'
+    paths: '{{ iso_mount_dir }}/vcsa'
+    patterns: '*.ova'
   register: ova_file
 
 - name: deploy appliance
   vmware_deploy_ovf:
-    hostname: "{{ ansible_host }}"
+    hostname: "{{ ansible_hostname }}"
     username: "{{ ansible_user | default(ansible_ssh_user) | default('root') }}"
     password: "{{ ansible_password | default(ansible_ssh_password) }}"
     ovf: '{{ ova_file.files[0] }}'
@@ -39,7 +39,6 @@
       guestinfo.cis.appliance.net.prefix: "{{ vcenter_net_prefix }}"
       guestinfo.cis.appliance.net.gateway: "{{ vcenter_gateway | ipaddr }}"
       guestinfo.cis.appliance.net.dns.servers: '{% for item in dns_servers %}{{ item }}{{ "," if not loop.last else "" }}{% endfor %}'
-  delegate_to: localhost
   when:
     - ova_file is success
     - ova_file.matched is defined

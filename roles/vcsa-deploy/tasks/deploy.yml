@@ -18,7 +18,7 @@
     --X:connectionFileTransferRetryCount=3
     --sourceType=OVA
     --powerOn
-    --net:"Network 1"="'{{ target_esx_portgroup }}'"
+    --net:"Network 1"='{{ target_esx_portgroup }}'
     --datastore='{{ target_esx_datastore }}'
     --diskMode='{{ disk_mode }}'
     --deploymentOption="{{ vcenter_appliance_size }}"

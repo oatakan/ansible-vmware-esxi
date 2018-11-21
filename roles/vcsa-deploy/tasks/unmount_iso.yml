@@ -1,0 +1,11 @@
+---
+
+- name: ensure the iso file is unmounted
+  mount:
+    path: '{{ iso_mount_dir }}'
+    state: unmounted
+
+- name: ensure the mount directory doesn't exist
+  file:
+    path: '{{ iso_mount_dir }}'
+    state: absent

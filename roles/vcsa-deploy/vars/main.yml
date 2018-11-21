@@ -1,0 +1,13 @@
+---
+
+vcenter:
+  ip_address: "{{ lookup('env', 'VMWARE_HOST')|default('') }}"
+  username: "{{ lookup('env', 'VMWARE_USER')|default('') }}"
+  password: "{{ lookup('env', 'VMWARE_PASSWORD')|default('') }}"
+
+vcenter_password: '{{ vault_vcenter_password }}'
+vcenter_fqdn: "vcenter.home.virtualelephant.com"
+vcenter_ip_address: "192.168.0.25"
+vcenter_netmask: "255.255.0.0"
+vcenter_gateway: "192.168.0.1"
+vcenter_net_prefix: "16"

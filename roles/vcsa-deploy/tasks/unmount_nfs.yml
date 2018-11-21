@@ -1,18 +1,5 @@
 ---
 
-- name: unmount datastore
-  vmware_host_datastore:
-    hostname: "{{ ansible_host }}"
-    username: "{{ ansible_user | default(ansible_ssh_user) | default('root') }}"
-    password: "{{ ansible_password | default(ansible_ssh_password) }}"
-    datacenter_name: dc
-    datastore_name: '{{ item.name }}'
-    datastore_type: '{{ item.type }}'
-    nfs_server: '{{ item.server }}'
-    nfs_path: '{{ item.path }}'
-    nfs_ro: yes
-    esxi_hostname: '{{ ansible_host }}'
-    state: absent
-  delegate_to: localhost
-  loop:
-    - { 'name': 'nfs_vol01', 'server': '{{ network_host }}', 'path': '{{ network_path }}', 'type': 'nfs'}
+- name: unmount nfs share
+  command: esxcli storage nfs remove --volume-name=nfs_vol01
+  ignore_errors: yes

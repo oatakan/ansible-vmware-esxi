@@ -4,6 +4,9 @@
   command: openssl x509 -in /etc/vmware/ssl/rui.crt -fingerprint -sha1 -noout
   register: esxi_ssl_thumbprint
 
+- debug:
+    msg: "{{ esxi_ssl_thumbprint.stdout | replace('SHA1 Fingerprint=','') }}"
+
 - name: add ESXi Host to vCenter under a specific folder
   vmware_host:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
@@ -15,7 +18,7 @@
     esxi_hostname: "{{ ansible_host }}"
     esxi_username: "{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}"
     esxi_password: "{{ ansible_password }}"
-    esxi_ssl_thumbprint: "{{ esxi_ssl_thumbprint.stdout }}"
+    esxi_ssl_thumbprint: "{{ esxi_ssl_thumbprint.stdout | replace('SHA1 Fingerprint=','') }}"
     state: present
     add_connected: True
   delegate_to: localhost

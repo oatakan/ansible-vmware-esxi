@@ -6,6 +6,7 @@
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
     datacenter_name: "{{ vcenter_datacenter }}"
+    cluster_name: "{{ vcenter_cluster }}"
     esxi_hostname: "{{ ansible_host }}"
     esxi_username: "{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}"
     esxi_password: "{{ ansible_password }}"

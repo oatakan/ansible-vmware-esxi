@@ -1,3 +1,4 @@
 ---
 
 vcenter_datacenter: cloud
+vcenter_cluster: mylab

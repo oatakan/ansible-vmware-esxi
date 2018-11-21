@@ -9,3 +9,17 @@
     datacenter_name: '{{ vcenter_datacenter }}'
     state: present
   delegate_to: localhost
+
+- name: ensure cluster exists
+  vmware_datacenter:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: no
+    datacenter_name: '{{ vcenter_datacenter }}'
+    cluster_name: '{{ vcenter_cluster }}'
+    enable_ha: '{{ enable_ha}}'
+    enable_drs: '{{ enable_drs }}'
+    enable_vsan: '{{ enable_vsan }}'
+    state: present
+  delegate_to: localhost

@@ -14,7 +14,7 @@
     --diskMode='{{ disk_mode }}'
     --name="{{ item | replace('.ova','') | replace('-ovf','') }}"
     '{{ network_mount_dir }}/{{ ova_path}}/{{ item }}'
-    vi://"{{ lookup('env', 'VMWARE_USER') | urlencode }}":"{{ lookup('env', 'VMWARE_PASSWORD') | urlencode }}"@"{{ lookup('env', 'VMWARE_HOST') }}":443/"{{ vcenter_datacenter }}"/host/"{{ vcenter_cluster }}"
+    vi://"{{ lookup('env', 'VMWARE_USER') | urlencode }}":"{{ lookup('env', 'VMWARE_PASSWORD') | urlencode }}"@"{{ lookup('env', 'VMWARE_HOST') }}":443/"{{ vcenter_datacenter }}"/host/"{{ vcenter_cluster }}"/
   loop: "{{ ova_files }}"
   when:
     - ova_files is defined

@@ -16,6 +16,7 @@
         path: '{{ network_mount_dir }}'
         state: directory
         mode: 0755
+      delegate_to: localhost
 
     - name: mount network share
       mount:
@@ -24,17 +25,21 @@
         fstype: nfs
         opts: nolock
         state: mounted
+      delegate_to: localhost
 
   roles:
-    - vcsa-deploy-via-linux-host
+    - role: vcsa-deploy-via-linux-host
+      delegate_to: localhost
 
   post_tasks:
     - name: unmount network share
       mount:
         path: '{{ network_mount_dir }}'
         state: unmounted
+      delegate_to: localhost
 
     - name: ensure the mount directory doesn't exist
       file:
         path: '{{ network_mount_dir }}'
         state: absent
+      delegate_to: localhost

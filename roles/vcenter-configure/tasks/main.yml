@@ -23,3 +23,39 @@
     enable_vsan: '{{ enable_vsan }}'
     state: present
   delegate_to: localhost
+
+- name: create resource pools
+  vmware_resource_pool:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: no
+    datacenter: '{{ vcenter_datacenter }}'
+    cluster: '{{ vcenter_cluster }}'
+    resource_pool: '{{ item }}'
+    state: present
+  delegate_to: localhost
+  loop: "{{ vcenter_resource_pools }}"
+
+- name: create folders
+  vcenter_folder:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: no
+    datacenter: '{{ vcenter_datacenter }}'
+    folder_name: "{{ item }}"
+    folder_type: vm
+    state: present
+  delegate_to: localhost
+  loop: "{{ vcenter_vm_folders }}"
+
+- name: Add a new vCenter license
+  vcenter_license:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    license: "{{ vcenter_license }}"
+    state: present
+  delegate_to: localhost
+  when: vcenter_license is defined

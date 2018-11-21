@@ -5,3 +5,13 @@ vcenter_cluster: mylab
 enable_ha: no
 enable_drs: yes
 enable_vsan: yes
+
+vcenter_resource_pools:
+  - infra
+  - management
+  - manageto
+
+vcenter_vm_folders:
+  - template
+
+vcenter_license: ''

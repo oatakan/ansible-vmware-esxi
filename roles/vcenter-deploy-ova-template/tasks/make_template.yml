@@ -32,3 +32,17 @@
   loop: "{{ ova_files }}"
   when:
     - ova_files is defined
+
+- name: move template to templates folder
+  vmware_guest_move:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: no
+    datacenter: '{{ vcenter_datacenter }}'
+    name: "{{ item | replace('.ova','') | replace('-ovf','') }}"
+    dest_folder: /{{ vcenter_datacenter }}/vm/template
+  delegate_to: localhost
+  loop: "{{ ova_files }}"
+  when:
+    - ova_files is defined

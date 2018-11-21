@@ -1,0 +1,11 @@
+---
+
+- name: ensure datacenter exists
+  vmware_datacenter:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: no
+    datacenter_name: '{{ vcenter_datacenter }}'
+    state: present
+  delegate_to: localhost

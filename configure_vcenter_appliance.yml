@@ -1,0 +1,7 @@
+- name: configure vcenter appliance
+  hosts: all
+  gather_facts: no
+  become: no
+
+  roles:
+    - vcenter-configure

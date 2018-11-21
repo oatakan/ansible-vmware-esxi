@@ -1,0 +1,12 @@
+---
+
+- name: wait for deployment to finish
+  uri:
+    url: https://{{ vcenter_fqdn }}
+    return_content: no
+    validate_certs: no
+  register: response
+  until: response is success
+  retries: '{{ wait_for_connection_retries }}'
+  delay: '{{ wait_for_connection_delay }}'
+  ignore_errors: yes

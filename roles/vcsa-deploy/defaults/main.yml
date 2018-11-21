@@ -39,3 +39,6 @@ ntp_servers:
 
 network_host: ''
 network_path: ''
+
+wait_for_connection_retries: 300
+wait_for_connection_delay: 5

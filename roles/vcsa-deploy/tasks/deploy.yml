@@ -42,7 +42,6 @@
       guestinfo.cis.appliance.net.prefix: "{{ vcenter_net_prefix }}"
       guestinfo.cis.appliance.net.gateway: "{{ vcenter_gateway | ipaddr }}"
       guestinfo.cis.appliance.net.dns.servers: '{% for item in dns_servers %}{{ item }}{{ "," if not loop.last else "" }}{% endfor %}'
-  delegate_to: localhost
   when:
     - ova_file is success
     - ova_file.matched is defined

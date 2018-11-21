@@ -33,7 +33,7 @@
   when:
     - ova_files is defined
 
-- name: move template to templates folder
+- name: move templates to template folder
   vmware_guest_move:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"

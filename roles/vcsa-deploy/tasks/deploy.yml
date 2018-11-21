@@ -1,10 +1,24 @@
 ---
 
+- name: gather information about vms and templates
+  vmware_vm_facts:
+    hostname: "{{ ansible_host }}"
+    username: "{{ ansible_user | default(ansible_ssh_user) | default('root') }}"
+    password: "{{ ansible_password | default(ansible_ssh_password) }}"
+    validate_certs: no
+  delegate_to: localhost
+  register: vm_facts
+
+- debug:
+    var: vm_facts
+
 - name: find ova file
   find:
     paths: '{{ network_mount_dir }}/images'
     patterns: 'VMware-vCenter-Server-Appliance-6.7.0*.ova'
   register: ova_file
+  when:
+    - vcenter_appliance_name not in vm_facts.virtual_machines | list
 
 - name: deploy appliance
   command: >
@@ -53,3 +67,4 @@
     - ova_file.matched is defined
     - ova_file.matched | int > 0
     - ova_file.files is defined
+    - vcenter_appliance_name not in vm_facts.virtual_machines | list

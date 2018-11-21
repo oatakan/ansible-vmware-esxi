@@ -5,6 +5,7 @@
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: no
     datacenter_name: "{{ vcenter_datacenter }}"
     cluster_name: "{{ vcenter_cluster }}"
     esxi_hostname: "{{ ansible_host }}"

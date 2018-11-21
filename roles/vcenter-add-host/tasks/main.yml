@@ -6,9 +6,9 @@
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
     datacenter_name: "{{ vcenter_datacenter }}"
-    esxi_hostname: '{{ ansible_host }}'
-    esxi_username: '{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}'
-    esxi_password: '{{ ansible_password }}'
+    esxi_hostname: "{{ ansible_host }}"
+    esxi_username: "{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}"
+    esxi_password: "{{ ansible_password }}"
     state: present
     add_connected: True
   delegate_to: localhost

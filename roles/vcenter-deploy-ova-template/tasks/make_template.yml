@@ -7,6 +7,7 @@
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
     validate_certs: no
     datacenter: '{{ vcenter_datacenter }}'
+    folder: /{{ vcenter_datacenter }}/vm
     name: "{{ item | replace('.ova','') | replace('-ovf','') }}"
     state: present
     snapshot_name: Linked

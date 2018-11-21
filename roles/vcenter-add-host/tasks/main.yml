@@ -5,7 +5,7 @@
   register: esxi_ssl_thumbprint
 
 - debug:
-    msg: "{{ ansible_user | default(ansible_ssh_user) | default('root') }}"
+    msg: "{{ ansible_host }}"
 
 - name: add ESXi Host to vCenter under a specific folder
   vmware_host:
@@ -17,7 +17,7 @@
     cluster_name: "{{ vcenter_cluster }}"
     esxi_hostname: "{{ ansible_host }}"
     esxi_username: "{{ ansible_user | default(ansible_ssh_user) | default('root') }}"
-    esxi_password: "{{ ansible_password }}"
+    esxi_password: "{{ ansible_password | default(ansible_ssh_password) }}"
     esxi_ssl_thumbprint: "{{ esxi_ssl_thumbprint.stdout | replace('SHA1 Fingerprint=','') }}"
     state: present
     add_connected: True

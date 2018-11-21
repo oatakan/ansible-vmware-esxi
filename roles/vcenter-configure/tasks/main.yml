@@ -35,7 +35,11 @@
     resource_pool: '{{ item }}'
     state: present
   delegate_to: localhost
+  register: resource_pools
   loop: "{{ vcenter_resource_pools }}"
+
+- debug:
+    var: resource_pools
 
 - name: create folders
   vcenter_folder:
@@ -55,12 +59,25 @@
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: no
     license: "{{ vcenter_license }}"
     state: present
   delegate_to: localhost
   when:
     - vcenter_license is defined
     - vcenter_license
+
+- name: gather information about resource pool
+  vmware_resource_pool_facts:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: no
+  register: rp_facts
+  delegate_to: localhost
+
+- debug:
+    var: rp_facts
 
 - name: move vcenter to infra resource pool
   vmware_guest_move:

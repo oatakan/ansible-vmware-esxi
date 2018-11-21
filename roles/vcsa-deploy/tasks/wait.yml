@@ -5,6 +5,7 @@
     url: https://{{ vcenter_fqdn }}
     return_content: no
     validate_certs: no
+  delegate_to: localhost
   register: response
   until: response is success
   retries: '{{ wait_for_connection_retries }}'

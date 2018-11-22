@@ -8,7 +8,7 @@
     ova_files:
       - windows-10-1809-ovf.ova
       - rhel76-x64-bigdisk.ova
-      - windows-2016-datacenter-updated.ova
+      - windows-2016-standard-core-ovf.ova
 
   roles:
     - role: vcenter-deploy-ova-template

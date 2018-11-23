@@ -71,5 +71,17 @@
     validate_certs: no
     datacenter: '{{ vcenter_datacenter }}'
     name: "{{ vcenter_appliance_name }}"
-    dest_folder: /{{ vcenter_datacenter }}/vm/infra
+    dest_folder: /{{ vcenter_datacenter }}/vm/Discovered virtual machine
+  delegate_to: localhost
+
+- name: move vcenter vm to infra resource pool
+  vmware_guest:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: no
+    datacenter: '{{ vcenter_datacenter }}'
+    cluster: '{{ vcenter_cluster }}'
+    name: "{{ vcenter_appliance_name }}"
+    resource_pool: infra
   delegate_to: localhost

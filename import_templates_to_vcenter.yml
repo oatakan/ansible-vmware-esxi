@@ -11,6 +11,7 @@
       - windows-2016-standard-core-ovf.ova
       - centos75-x64-bigdisk_v4.ova
       - windows-2016-ovf.ova
+      - windows-2016-datacenter-ovf.ova
 
   roles:
     - role: vcenter-deploy-ova-template

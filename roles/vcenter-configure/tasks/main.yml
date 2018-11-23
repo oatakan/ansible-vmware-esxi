@@ -71,5 +71,5 @@
     validate_certs: no
     datacenter: '{{ vcenter_datacenter }}'
     name: "{{ vcenter_appliance_name }}"
-    dest_folder: /{{ vcenter_datacenter }}/vm/Discovered virtual machine/infra
+    dest_folder: /{{ vcenter_datacenter }}/vm/Discovered virtual machine
   delegate_to: localhost

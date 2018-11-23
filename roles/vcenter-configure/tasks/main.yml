@@ -63,13 +63,13 @@
     - vcenter_license is defined
     - vcenter_license
 
-#- name: move vcenter to infra resource pool
-#  vmware_guest_move:
-#    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
-#    username: "{{ lookup('env', 'VMWARE_USER') }}"
-#    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-#    validate_certs: no
-#    datacenter: '{{ vcenter_datacenter }}'
-#    name: "{{ vcenter_appliance_name }}"
-#    dest_folder: /{{ vcenter_datacenter }}/Resources/infra/vm
-#  delegate_to: localhost
+- name: move vcenter to infra resource pool
+  vmware_guest_move:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: no
+    datacenter: '{{ vcenter_datacenter }}'
+    name: "{{ vcenter_appliance_name }}"
+    dest_folder: /{{ vcenter_datacenter }}/host/{{ vcenter_cluster }}/Resources/infra
+  delegate_to: localhost

@@ -73,4 +73,5 @@
     cluster: '{{ vcenter_cluster }}'
     name: "{{ vcenter_appliance_name }}"
     resource_pool: infra
+  ignore_errors: yes
   delegate_to: localhost

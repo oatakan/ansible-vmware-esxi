@@ -12,7 +12,7 @@
       - centos76-x64-bigdisk_v1.ova
       - windows-2016-ovf.ova
       - windows-2016-datacenter-ovf.ova
-
+      - windows-2019-ovf.ova
   roles:
     - role: vcenter-deploy-ova-template
       run_once: yes

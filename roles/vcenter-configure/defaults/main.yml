@@ -13,6 +13,7 @@ vcenter_resource_pools:
 
 vcenter_vm_folders:
   - template
+  - redhat
 
 vcenter_license: ''
 

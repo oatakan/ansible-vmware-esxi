@@ -7,7 +7,7 @@
     network_path: /mnt/vault/work/install
     ova_files:
       - windows-10-1809-ovf.ova
-      - rhel76-x64-bigdisk.ova
+      - rhel76-x64-bigdisk_v1.ova
       #- windows-2016-standard-core-ovf.ova
       - centos75-x64-bigdisk_v4.ova
       - centos76-x64-bigdisk_v1.ova

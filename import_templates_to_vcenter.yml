@@ -6,7 +6,7 @@
     network_host: 192.168.1.103
     network_path: /mnt/vault/work/install
     ova_files:
-      #- windows-10-1809-ovf.ova
+      - windows-10-1809-ovf.ova
       - rhel76-x64-bigdisk.ova
       #- windows-2016-standard-core-ovf.ova
       - centos76-x64-bigdisk_v1.ova

@@ -5,8 +5,6 @@
     paths: '{{ network_mount_dir }}/images'
     patterns: '{{ vcenter_ova_file | default("VMware-vCenter-Server-Appliance-6.7.0.30000*.ova") }}'
   register: ova_file
-  when:
-    - vcenter_appliance_name not in vm_facts.virtual_machines | list
 
 - name: deploy appliance
   command: >
@@ -55,4 +53,3 @@
     - ova_file.matched is defined
     - ova_file.matched | int > 0
     - ova_file.files is defined
-    - vcenter_appliance_name not in vm_facts.virtual_machines | list

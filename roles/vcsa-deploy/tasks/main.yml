@@ -1,13 +1,13 @@
 ---
 
 - debug:
-    var: ansible_host
+    var: ansible_password
 
 - name: gather information about vms and templates
   vmware_vm_facts:
     hostname: "{{ ansible_host }}"
     username: root
-    password: "abc"
+    password: "{{ ansible_password | default(ansible_ssh_password) }}"
     validate_certs: no
   delegate_to: localhost
   register: vm_facts

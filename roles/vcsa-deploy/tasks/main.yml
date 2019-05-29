@@ -1,5 +1,8 @@
 ---
 
+- debug:
+    var: ansible_host
+
 - name: gather information about vms and templates
   vmware_vm_facts:
     hostname: "{{ ansible_host }}"

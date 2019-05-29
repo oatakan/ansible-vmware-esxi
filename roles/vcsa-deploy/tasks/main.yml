@@ -3,7 +3,7 @@
 - name: gather information about vms and templates
   vmware_vm_facts:
     hostname: "{{ ansible_host }}"
-    username: root
+    username: "root"
     password: "{{ ansible_password | default(ansible_ssh_password) }}"
     validate_certs: no
     vm_type: all

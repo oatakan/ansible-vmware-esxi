@@ -4,36 +4,35 @@
   vmware_vm_facts:
     hostname: "{{ ansible_host }}"
     username: root
-    password: "{{ ansible_password }}"
+    password: "{{ ansible_password | default(ansible_ssh_password) }}"
     validate_certs: no
-    vm_type: all
   delegate_to: localhost
   register: vm_facts
 
-- block:
-
-    - include_tasks: mount_nfs.yml
-
-    - include_tasks: deploy.yml
-
-    - include_tasks: unmount_nfs.yml
-
-    - include_tasks: wait.yml
-
-  when:
-    - ansible_version.full is version('2.8.0', '<')
-    - vcenter_appliance_name not in vm_facts.virtual_machines | list
-
-- block:
-
-    - include_tasks: mount_nfs.yml
-
-    - include_tasks: deploy.yml
-
-    - include_tasks: unmount_nfs.yml
-
-    - include_tasks: wait.yml
-
-  when:
-    - ansible_version.full is version('2.8.0', '>=')
-    - vcenter_appliance_name not in (vm_facts.virtual_machines | map(attribute='guest_name') | list)
+#- block:
+#
+#    - include_tasks: mount_nfs.yml
+#
+#    - include_tasks: deploy.yml
+#
+#    - include_tasks: unmount_nfs.yml
+#
+#    - include_tasks: wait.yml
+#
+#  when:
+#    - ansible_version.full is version('2.8.0', '<')
+#    - vcenter_appliance_name not in vm_facts.virtual_machines | list
+#
+#- block:
+#
+#    - include_tasks: mount_nfs.yml
+#
+#    - include_tasks: deploy.yml
+#
+#    - include_tasks: unmount_nfs.yml
+#
+#    - include_tasks: wait.yml
+#
+#  when:
+#    - ansible_version.full is version('2.8.0', '>=')
+#    - vcenter_appliance_name not in (vm_facts.virtual_machines | map(attribute='guest_name') | list)

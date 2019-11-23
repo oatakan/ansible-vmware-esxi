@@ -8,7 +8,8 @@
     vcenter_netmask: 255.255.255.0
     vcenter_gateway: 192.168.1.254
     vcenter_net_prefix: 24
-    vcenter_ova_file: VMware-vCenter-Server-Appliance-6.7.0.30000-13010631_OVF10.ova
+    #vcenter_ova_file: VMware-vCenter-Server-Appliance-6.7.0.30000-13010631_OVF10.ova
+    vcenter_ove_file: VMware-vCenter-Server-Appliance-6.7.0.41000-14836122_OVF10.ova
 
   roles:
     - vcsa-deploy

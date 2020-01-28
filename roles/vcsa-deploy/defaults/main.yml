@@ -7,6 +7,7 @@ sso_domain_name: home.ad
 network_mount_dir: /vmfs/volumes/nfs_vol01
 #vcsa_iso: iso/VMware-VCSA-all-6.7.0-10244745.iso
 #vcsa_iso: iso/VMware-VCSA-all-6.7.0-13010631.iso
+#vcsa_iso: iso/VMware-VCSA-all-6.7.0-14836122.iso
 vcsa_iso: iso/VMware-VCSA-all-6.7.0-14836122.iso
 
 iso_mount_dir: /mnt/iso

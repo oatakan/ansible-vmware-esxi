@@ -1,7 +1,7 @@
 ---
+- block:
+    - include_tasks: mount_nfs.yml
 
-- include_tasks: mount_nfs.yml
-
-- include_tasks: deploy.yml
-
-- include_tasks: unmount_nfs.yml
+    - include_tasks: deploy.yml
+  always:
+    - include_tasks: unmount_nfs.yml

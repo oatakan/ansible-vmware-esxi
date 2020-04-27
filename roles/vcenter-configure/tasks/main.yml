@@ -49,7 +49,7 @@
   delegate_to: localhost
   loop: "{{ vcenter_vm_folders }}"
 
-- name: Add a new vCenter license
+- name: add a new vCenter license
   vcenter_license:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
@@ -59,6 +59,20 @@
     state: present
   delegate_to: localhost
   when: (vcenter_license|length | default(0)) > 0
+
+- name: wait for vca to show up in vcenter inventory
+  vmware_vm_info:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: no
+    vm_type: vm
+  delegate_to: localhost
+  register: vm_facts
+  until: (vm_facts.virtual_machines | default([]) | selectattr('guest_name', 'equalto', vcenter_appliance_name) | list) | length > 0
+  retries: 300
+  delay: 5
+  ignore_errors: yes
 
 - name: move vcenter vm to infra resource pool
   vmware_guest:

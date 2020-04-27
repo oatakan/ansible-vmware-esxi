@@ -44,5 +44,9 @@
     cluster: '{{ vcenter_cluster }}'
     name: "{{ vcenter_appliance_name }}"
     resource_pool: infra
-  ignore_errors: yes
   delegate_to: localhost
+  register: move_vcenter_vm
+  until: move_vcenter_vm is success
+  retries: 30
+  delay: 5
+  ignore_errors: yes

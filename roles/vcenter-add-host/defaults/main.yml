@@ -2,3 +2,4 @@
 
 vcenter_datacenter: cloud
 vcenter_cluster: mylab
+vcenter_appliance_name: vcenter

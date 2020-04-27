@@ -2,7 +2,6 @@
 
 vcenter_datacenter: cloud
 vcenter_cluster: mylab
-enable_ha: no
 enable_drs: yes
 enable_vsan: no
 

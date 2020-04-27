@@ -18,7 +18,6 @@
     validate_certs: no
     datacenter_name: '{{ vcenter_datacenter }}'
     cluster_name: '{{ vcenter_cluster }}'
-    enable_ha: '{{ enable_ha}}'
     enable_drs: '{{ enable_drs }}'
     enable_vsan: '{{ enable_vsan }}'
     state: present
@@ -59,9 +58,7 @@
     license: "{{ vcenter_license }}"
     state: present
   delegate_to: localhost
-  when:
-    - vcenter_license is defined
-    - vcenter_license
+  when: (vcenter_license|length | default(0)) > 0
 
 - name: move vcenter vm to infra resource pool
   vmware_guest:

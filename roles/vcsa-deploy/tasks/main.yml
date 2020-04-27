@@ -2,7 +2,7 @@
 
 - block:
     - name: gather information about vms and templates
-      vmware_vm_facts:
+      vmware_vm_info:
         hostname: "{{ ansible_host }}"
         username: root
         password: "{{ ansible_password | default(ansible_ssh_password) }}"

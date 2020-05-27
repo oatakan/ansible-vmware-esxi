@@ -5,7 +5,7 @@ sso_site_name: Default-Site
 sso_domain_name: home.ad
 
 network_mount_dir: /mnt/net
-vcsa_iso: iso/VMware-VCSA-all-7.0.0-15952498.iso
+vcsa_iso: iso/VMware-VCSA-all-7.0.0-16189094.iso
 
 iso_mount_dir: /mnt/iso
 

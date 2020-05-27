@@ -10,7 +10,8 @@
     vcenter_net_prefix: 24
     #vcenter_ova_file: VMware-vCenter-Server-Appliance-6.7.0.41000-14836122_OVF10.ova
     #vcenter_ova_file: VMware-vCenter-Server-Appliance-6.7.0.42000-15132721_OVF10.ova
-    vcenter_ova_file: VMware-vCenter-Server-Appliance-7.0.0.10100-15952498_OVF10.ova
+    #vcenter_ova_file: VMware-vCenter-Server-Appliance-7.0.0.10100-15952498_OVF10.ova
+    vcenter_ova_file: VMware-vCenter-Server-Appliance-7.0.0.10300-16189094_OVF10.ova
 
   roles:
     - vcsa-deploy

@@ -49,18 +49,6 @@
   delegate_to: localhost
   loop: "{{ vcenter_vm_folders }}"
 
-- name: ensure iso directory exists on the datastore
-  vsphere_file:
-    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
-    username: "{{ lookup('env', 'VMWARE_USER') }}"
-    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-    validate_certs: no
-    datacenter: '{{ vcenter_datacenter }}'
-    datastore: '{{ target_esx_datastore }}'
-    path: iso
-    state: directory
-  delegate_to: localhost
-
 - name: add a new vCenter license
   vcenter_license:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"

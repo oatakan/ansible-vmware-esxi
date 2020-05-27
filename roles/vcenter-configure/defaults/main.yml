@@ -5,6 +5,8 @@ vcenter_cluster: mylab
 enable_drs: yes
 enable_vsan: no
 
+target_esx_datastore: datastore1
+
 vcenter_resource_pools:
   - infra
   - management

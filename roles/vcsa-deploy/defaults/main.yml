@@ -8,7 +8,9 @@ network_mount_dir: /vmfs/volumes/nfs_vol01
 #vcsa_iso: iso/VMware-VCSA-all-6.7.0-13010631.iso
 #vcsa_iso: iso/VMware-VCSA-all-6.7.0-14836122.iso
 #vcsa_iso: iso/VMware-VCSA-all-7.0.0-15952498.iso
-vcsa_iso: iso/VMware-VCSA-all-7.0.0-16189094.iso
+#vcsa_iso: iso/VMware-VCSA-all-7.0.0-16189094.iso
+vcsa_iso: iso/VMware-VCSA-all-7.0.0-16386292.iso
+
 
 iso_mount_dir: /mnt/iso
 ovftool: '{{ network_mount_dir }}/images/ovftool/lin64/ovftool'

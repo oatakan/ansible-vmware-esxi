@@ -15,6 +15,7 @@
     target_esx_portgroup: mgmt
     ova_file: bitnami-nginx-1.18.0-5-r03-linux-centos-7-x86_64-nami.ova
     ovftool: '{{ network_mount_dir }}/images/ovftool/lin64/ovftool'
+    vm_name: nginx-from-ova
     user_data: |
       #!/bin/bash
       echo "root:{{ ansible_password | default(ansible_ssh_password) }}" | chpasswd
@@ -51,7 +52,7 @@
             --net:"bridged"='{{ target_esx_portgroup }}'
             --datastore='{{ target_esx_datastore }}'
             --diskMode='{{ disk_mode }}'
-            --name="nginx-from-ova"
+            --name="{{ vm_name }}"
             --prop:user-data="{{ user_data | b64encode }}"
             --prop:network.ip0="192.168.1.53"
             --prop:network.netmask0="255.255.255.0"

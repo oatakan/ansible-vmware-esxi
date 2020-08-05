@@ -12,13 +12,15 @@
   tasks:
     - name: check file
       stat:
-        path: "{{ playbook_dir }}/{{ ova_file }}"
+        path: "{{ ova_file }}"
         get_checksum: no
       delegate_to: localhost
       register: check_ova_file
 
-    - debug:
-        msg: "{{ check_ova_file }}"
+    - name: fail if the file doesn't exist
+      fail:
+        msg: "{{ ova_file }} doesn't exist"
+      when: not check_ova_file.stat.exists
 
     - name: deploy ova
       vmware_deploy_ovf:
@@ -27,7 +29,7 @@
         password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
         validate_certs: no
         datacenter: '{{ vcenter_datacenter }}'
-        ovf: "{{ playbook_dir }}/{{ ova_file }}"
+        ovf: "{{ ova_file }}"
         name: nginx-from-ova
         properties:
           va-ssh-public-key: ""

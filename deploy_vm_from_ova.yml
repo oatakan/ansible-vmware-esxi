@@ -38,12 +38,14 @@
             --noSSLVerify
             --X:injectOvfEnv
             --allowExtraConfig
+            --X:enableHiddenProperties
             --X:connectionFileTransferRetryCount=3
             --sourceType=OVA
+            --powerOn
             --net:"bridged"='{{ target_esx_portgroup }}'
             --datastore='{{ target_esx_datastore }}'
             --diskMode='{{ disk_mode }}'
-            --name=nginx-from-ova
+            --name="nginx-from-ova"
             --prop:network.ip0="192.168.1.53"
             --prop:network.netmask0="255.255.255.0"
             --prop:network.gateway="192.168.1.254"

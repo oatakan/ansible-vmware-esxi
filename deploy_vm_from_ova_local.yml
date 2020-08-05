@@ -1,6 +1,5 @@
 - name: deploy vm from ova
-  hosts: localhost
-  connection: local
+  hosts: all
   gather_facts: no
   become: no
   vars:

@@ -55,10 +55,7 @@
             vi://"{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}":"{{ ansible_password | default(ansible_ssh_password) | urlencode }}"@{{ ansible_host }}/
 
       always:
-        - pause:
-            seconds: 10
-
-        - name: remove NFS datastore
+        - name: unmount NFS datastore
           vmware_host_datastore:
             hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
             username: "{{ lookup('env', 'VMWARE_USER') }}"
@@ -67,3 +64,7 @@
             esxi_hostname: '{{ ansible_host }}'
             state: absent
           delegate_to: localhost
+          register: unmount_datastore
+          until: unmount_datastore is success
+          delay: 3
+          retries: 10

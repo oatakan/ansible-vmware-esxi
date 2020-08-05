@@ -56,6 +56,7 @@
             datastore: '{{ target_esx_datastore }}'
             inject_ovf_env: yes
             power_on: yes
+          delegate_to: localhost
       always:
         - name: remove NFS datastore
           vmware_host_datastore:

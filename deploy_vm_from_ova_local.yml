@@ -14,6 +14,7 @@
       stat:
         path: "{{ playbook_dir }}/{{ ova_file }}"
         get_checksum: no
+      delegate_to: localhost
       register: check_ova_file
 
     - debug:

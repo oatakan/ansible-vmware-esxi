@@ -50,7 +50,7 @@
             --prop:network.gateway="192.168.1.254"
             --prop:network.domain="home.ad"
             --prop:network.dns="8.8.8.8"
-            '{{ network_mount_dir }}/{{ ova_path}}/{{ item }}'
+            '{{ network_mount_dir }}/{{ ova_path }}/{{ ova_file }}'
             vi://"{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}":"{{ ansible_password | default(ansible_ssh_password) | urlencode }}"@{{ ansible_host }}/
 
       always:

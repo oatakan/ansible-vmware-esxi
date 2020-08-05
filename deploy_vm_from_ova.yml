@@ -22,7 +22,6 @@
             hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
             username: "{{ lookup('env', 'VMWARE_USER') }}"
             password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-            datacenter_name: '{{ vcenter_datacenter }}'
             datastore_name: '{{ datastore_name }}'
             datastore_type: nfs
             nfs_server: '{{ network_host }}'
@@ -60,5 +59,6 @@
             username: "{{ lookup('env', 'VMWARE_USER') }}"
             password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
             datastore_name: '{{ datastore_name }}'
+            esxi_hostname: '{{ ansible_host }}'
             state: absent
           delegate_to: localhost

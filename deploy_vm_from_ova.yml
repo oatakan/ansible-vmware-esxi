@@ -1,0 +1,67 @@
+- name: deploy vm from ova
+  hosts: all
+  gather_facts: no
+  become: no
+  vars:
+    datastore_name: nfs_vol01
+    network_host: 192.168.1.103
+    network_path: /mnt/vault/work/install
+    network_mount_dir: /vmfs/volumes/{{ datastore_name }}
+    ova_path: images
+    vcenter_datacenter: cloud
+    vcenter_cluster: mylab
+    disk_mode: thin
+    target_esx_datastore: datastore1
+    target_esx_portgroup: mgmt
+    ova_file: bitnami-nginx-1.18.0-5-r03-linux-centos-7-x86_64-nami.ova
+  tasks:
+    - block:
+        - name: mount NFS datastore
+          vmware_host_datastore:
+            hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+            username: "{{ lookup('env', 'VMWARE_USER') }}"
+            password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+            datacenter_name: '{{ vcenter_datacenter }}'
+            datastore_name: '{{ datastore_name }}'
+            datastore_type: nfs
+            nfs_server: '{{ network_host }}'
+            nfs_path: '{{ network_path }}'
+            nfs_ro: yes
+            esxi_hostname: '{{ ansible_host }}'
+            state: present
+          delegate_to: localhost
+
+        - name: deploy ova
+          vmware_deploy_ovf:
+            hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+            username: "{{ lookup('env', 'VMWARE_USER') }}"
+            password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+            validate_certs: no
+            datacenter: '{{ vcenter_datacenter }}'
+            ovf: {{ network_mount_dir }}/{{ ova_path}}/{{ ova_file }}
+            name: nginx-from-ova
+            properties:
+              va-ssh-public-key: ""
+              user-data: ""
+              network.ip0: "192.168.1.53"
+              network.netmask0: "255.255.255.0"
+              network.gateway: "192.168.1.254"
+              network.domain: "home.ad"
+              network.dns: "8.8.8.8"
+              network.searchpath: ""
+            disk_provisioning: "{{ disk_mode }}"
+            networks:
+              "bridged": '{{ target_esx_portgroup }}'
+            cluster: '{{ vcenter_cluster }}'
+            datastore: '{{ target_esx_datastore }}'
+            inject_ovf_env: yes
+            power_on: yes
+      always:
+        - name: remove NFS datastore
+          vmware_host_datastore:
+            hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+            username: "{{ lookup('env', 'VMWARE_USER') }}"
+            password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+            datastore_name: '{{ datastore_name }}'
+            state: absent
+          delegate_to: localhost

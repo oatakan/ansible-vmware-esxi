@@ -10,25 +10,31 @@
   register: vm_facts
 
 - name: deploy ovas
-  command: >
-    {{ ovftool }}
-    --acceptAllEulas
-    --noSSLVerify
-    --X:injectOvfEnv
-    --allowExtraConfig
-    --X:connectionFileTransferRetryCount=3
-    --sourceType=OVA
-    --net:"nat"='{{ target_esx_portgroup }}'
-    --datastore='{{ target_esx_datastore }}'
-    --diskMode='{{ disk_mode }}'
-    --name="{{ item | replace('.ova','') | replace('-ovf','') }}"
-    '{{ network_mount_dir }}/{{ ova_path}}/{{ item }}'
-    vi://"{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}":"{{ ansible_password | default(ansible_ssh_password) | urlencode }}"@{{ ansible_host }}/
+  vmware_deploy_ovf:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: no
+    datacenter: '{{ vcenter_datacenter }}'
+    ovf: {{ network_mount_dir }}/{{ ova_path}}/{{ item }}
+    name: "{{ item | replace('.ova','') | replace('-ovf','') }}"
+#    properties:
+#      password: "defaultPass"
+#      ntpserver: "10.1.1.11,10.1.1.12"
+#      vami.ip0.vSphere_Replication_Appliance: "10.2.1.20"
+    disk_provisioning: "{{ disk_mode }}"
+    networks:
+      "nat": '{{ target_esx_portgroup }}'
+    cluster: '{{ vcenter_cluster }}'
+    datastore: '{{ target_esx_datastore }}'
+    inject_ovf_env: yes
+    power_on: yes
   loop: "{{ ova_files }}"
   when:
     - ova_files is defined
     - item | replace('.ova','') | replace('-ovf','') not in vm_facts.virtual_machines | list
 
+# command version below
 #- name: deploy ovas
 #  command: >
 #    {{ ovftool }}
@@ -38,12 +44,13 @@
 #    --allowExtraConfig
 #    --X:connectionFileTransferRetryCount=3
 #    --sourceType=OVA
-#    --net:"Network 1"='{{ target_esx_portgroup }}'
+#    --net:"nat"='{{ target_esx_portgroup }}'
 #    --datastore='{{ target_esx_datastore }}'
 #    --diskMode='{{ disk_mode }}'
 #    --name="{{ item | replace('.ova','') | replace('-ovf','') }}"
 #    '{{ network_mount_dir }}/{{ ova_path}}/{{ item }}'
-#    vi://"{{ lookup('env', 'VMWARE_USER') | urlencode }}":"{{ lookup('env', 'VMWARE_PASSWORD') | urlencode }}"@"{{ lookup('env', 'VMWARE_HOST') }}":443/"{{ vcenter_datacenter }}"/host/"{{ vcenter_cluster }}"/
+#    vi://"{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}":"{{ ansible_password | default(ansible_ssh_password) | urlencode }}"@{{ ansible_host }}/
 #  loop: "{{ ova_files }}"
 #  when:
 #    - ova_files is defined
+#    - item | replace('.ova','') | replace('-ovf','') not in vm_facts.virtual_machines | list

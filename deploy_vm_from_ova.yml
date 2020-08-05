@@ -59,7 +59,6 @@
             - deploy_ova.rc == '1'
             - ('Duplicate name' not in deploy_ova.stdout)
 
-
       always:
         - name: unmount NFS datastore
           vmware_host_datastore:

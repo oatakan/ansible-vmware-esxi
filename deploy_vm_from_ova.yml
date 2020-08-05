@@ -38,7 +38,7 @@
             password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
             validate_certs: no
             datacenter: '{{ vcenter_datacenter }}'
-            ovf: {{ network_mount_dir }}/{{ ova_path}}/{{ ova_file }}
+            ovf: "{{ network_mount_dir }}/{{ ova_path}}/{{ ova_file }}"
             name: nginx-from-ova
             properties:
               va-ssh-public-key: ""

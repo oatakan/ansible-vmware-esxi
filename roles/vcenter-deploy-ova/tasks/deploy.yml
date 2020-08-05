@@ -16,7 +16,7 @@
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
     validate_certs: no
     datacenter: '{{ vcenter_datacenter }}'
-    ovf: {{ network_mount_dir }}/{{ ova_path}}/{{ item }}
+    ovf: "{{ network_mount_dir }}/{{ ova_path}}/{{ item }}"
     name: "{{ item | replace('.ova','') | replace('-ovf','') }}"
 #    properties:
 #      password: "defaultPass"

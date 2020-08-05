@@ -12,7 +12,7 @@
     user_data: |
       #!/bin/bash
       echo "root:{{ ansible_password | default(ansible_ssh_password) }}" | chpasswd
-      sed -i 's/#PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+      sed -i 's/PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
       systemctl enable sshd
       systemctl start sshd
   tasks:
@@ -56,7 +56,7 @@
       delegate_to: localhost
 
     # smoke test that nginx is serving requests
-    - name: proper response from haproxy is received
+    - name: proper response from nginx is received
       uri:
         url: http://192.168.1.53
         return_content: yes

@@ -1,5 +1,6 @@
 - name: deploy vm from ova
-  hosts: all
+  hosts: localhost
+  connection: local
   gather_facts: no
   become: no
   vars:
@@ -17,7 +18,7 @@
         password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
         validate_certs: no
         datacenter: '{{ vcenter_datacenter }}'
-        ovf: "/tmp/{{ ova_file }}"
+        ovf: "{{ playbook_dir }}/{{ ova_file }}"
         name: nginx-from-ova
         properties:
           va-ssh-public-key: ""

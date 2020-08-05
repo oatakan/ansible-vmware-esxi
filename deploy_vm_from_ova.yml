@@ -54,9 +54,11 @@
             '{{ network_mount_dir }}/{{ ova_path }}/{{ ova_file }}'
             vi://"{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}":"{{ ansible_password | default(ansible_ssh_password) | urlencode }}"@{{ ansible_host }}/
           register: deploy_ova
+          changed_when: ('Duplicate name' not in deploy_ova.stdout)
           failed_when:
             - deploy_ova.rc == '1'
             - ('Duplicate name' not in deploy_ova.stdout)
+
 
       always:
         - name: unmount NFS datastore

@@ -14,6 +14,7 @@
     target_esx_datastore: datastore1
     target_esx_portgroup: mgmt
     ova_file: bitnami-nginx-1.18.0-5-r03-linux-centos-7-x86_64-nami.ova
+    ovftool: '{{ network_mount_dir }}/images/ovftool/lin64/ovftool'
   tasks:
     - block:
         - name: mount NFS datastore
@@ -32,31 +33,26 @@
           delegate_to: localhost
 
         - name: deploy ova
-          vmware_deploy_ovf:
-            hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
-            username: "{{ lookup('env', 'VMWARE_USER') }}"
-            password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-            validate_certs: no
-            datacenter: '{{ vcenter_datacenter }}'
-            ovf: "{{ network_mount_dir }}/{{ ova_path}}/{{ ova_file }}"
-            name: nginx-from-ova
-            properties:
-              va-ssh-public-key: ""
-              user-data: ""
-              network.ip0: "192.168.1.53"
-              network.netmask0: "255.255.255.0"
-              network.gateway: "192.168.1.254"
-              network.domain: "home.ad"
-              network.dns: "8.8.8.8"
-              network.searchpath: ""
-            disk_provisioning: "{{ disk_mode }}"
-            networks:
-              "bridged": '{{ target_esx_portgroup }}'
-            cluster: '{{ vcenter_cluster }}'
-            datastore: '{{ target_esx_datastore }}'
-            inject_ovf_env: yes
-            power_on: yes
-          delegate_to: localhost
+          command: >
+            {{ ovftool }}
+            --acceptAllEulas
+            --noSSLVerify
+            --X:injectOvfEnv
+            --allowExtraConfig
+            --X:connectionFileTransferRetryCount=3
+            --sourceType=OVA
+            --net:"bridged"='{{ target_esx_portgroup }}'
+            --datastore='{{ target_esx_datastore }}'
+            --diskMode='{{ disk_mode }}'
+            --name=nginx-from-ova
+            --prop:network.ip0="192.168.1.53"
+            --prop:network.netmask0="255.255.255.0"
+            --prop:network.gateway="192.168.1.254"
+            --prop:network.domain="home.ad"
+            --prop:network.dns="8.8.8.8"
+            '{{ network_mount_dir }}/{{ ova_path}}/{{ item }}'
+            vi://"{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}":"{{ ansible_password | default(ansible_ssh_password) | urlencode }}"@{{ ansible_host }}/
+
       always:
         - name: remove NFS datastore
           vmware_host_datastore:

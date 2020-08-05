@@ -1,0 +1,38 @@
+- name: deploy vm from ova
+  hosts: all
+  gather_facts: no
+  become: no
+  vars:
+    vcenter_datacenter: cloud
+    vcenter_cluster: mylab
+    disk_mode: thin
+    target_esx_datastore: datastore1
+    target_esx_portgroup: mgmt
+    ova_file: bitnami-nginx-1.18.0-5-r03-linux-centos-7-x86_64-nami.ova
+  tasks:
+    - name: deploy ova
+      vmware_deploy_ovf:
+        hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+        username: "{{ lookup('env', 'VMWARE_USER') }}"
+        password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+        validate_certs: no
+        datacenter: '{{ vcenter_datacenter }}'
+        ovf: "/tmp/{{ ova_file }}"
+        name: nginx-from-ova
+        properties:
+          va-ssh-public-key: ""
+          user-data: ""
+          network.ip0: "192.168.1.53"
+          network.netmask0: "255.255.255.0"
+          network.gateway: "192.168.1.254"
+          network.domain: "home.ad"
+          network.dns: "8.8.8.8"
+          network.searchpath: ""
+        disk_provisioning: "{{ disk_mode }}"
+        networks:
+          "bridged": '{{ target_esx_portgroup }}'
+        cluster: '{{ vcenter_cluster }}'
+        datastore: '{{ target_esx_datastore }}'
+        inject_ovf_env: yes
+        power_on: yes
+      delegate_to: localhost

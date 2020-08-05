@@ -10,6 +10,15 @@
     target_esx_portgroup: mgmt
     ova_file: bitnami-nginx-1.18.0-5-r03-linux-centos-7-x86_64-nami.ova
   tasks:
+    - name: check file
+      stat:
+        path: "{{ playbook_dir }}/{{ ova_file }}"
+        get_checksum: no
+      register: check_ova_file
+
+    - debug:
+        msg: "{{ check_ova_file }}"
+
     - name: deploy ova
       vmware_deploy_ovf:
         hostname: "{{ lookup('env', 'VMWARE_HOST') }}"

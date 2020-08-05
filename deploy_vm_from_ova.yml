@@ -55,6 +55,9 @@
             vi://"{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}":"{{ ansible_password | default(ansible_ssh_password) | urlencode }}"@{{ ansible_host }}/
 
       always:
+        - pause:
+            seconds: 10
+
         - name: remove NFS datastore
           vmware_host_datastore:
             hostname: "{{ lookup('env', 'VMWARE_HOST') }}"

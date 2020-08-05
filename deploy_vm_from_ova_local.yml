@@ -9,6 +9,9 @@
     target_esx_datastore: datastore1
     target_esx_portgroup: mgmt
     ova_file: bitnami-nginx-1.18.0-5-r03-linux-centos-7-x86_64-nami.ova
+    user_data: |
+      #!/bin/bash
+      echo "root:{{ ansible_password | default(ansible_ssh_password) }}" | chpasswd
   tasks:
     - name: check file
       stat:
@@ -33,7 +36,7 @@
         name: nginx-from-ova
         properties:
           va-ssh-public-key: ""
-          user-data: ""
+          user-data: "{{ user_data | b64encode }}"
           network.ip0: "192.168.1.53"
           network.netmask0: "255.255.255.0"
           network.gateway: "192.168.1.254"

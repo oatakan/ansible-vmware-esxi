@@ -9,7 +9,7 @@ network_mount_dir: /vmfs/volumes/nfs_vol01
 #vcsa_iso: iso/VMware-VCSA-all-6.7.0-14836122.iso
 #vcsa_iso: iso/VMware-VCSA-all-7.0.0-15952498.iso
 #vcsa_iso: iso/VMware-VCSA-all-7.0.0-16189094.iso
-vcsa_iso: iso/VMware-VCSA-all-7.0.0-16386292.iso
+vcsa_iso: iso/VMware-VCSA-all-7.0.1-17491101.iso
 
 
 iso_mount_dir: /mnt/iso

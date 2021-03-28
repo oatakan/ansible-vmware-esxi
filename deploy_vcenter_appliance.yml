@@ -14,7 +14,8 @@
     #vcenter_ova_file: VMware-vCenter-Server-Appliance-7.0.0.10100-15952498_OVF10.ova
     #vcenter_ova_file: VMware-vCenter-Server-Appliance-7.0.0.10300-16189094_OVF10.ova
     #vcenter_ova_file: VMware-vCenter-Server-Appliance-7.0.0.10400-16386292_OVF10.ova
-    vcenter_ova_file: VMware-vCenter-Server-Appliance-7.0.1.00300-17491101_OVF10.ova
+    #vcenter_ova_file: VMware-vCenter-Server-Appliance-7.0.1.00300-17491101_OVF10.ova
+    vcenter_ova_file: VMware-vCenter-Server-Appliance-7.0.2.00000-17694817_OVF10.ova
 
   roles:
     - vcsa-deploy

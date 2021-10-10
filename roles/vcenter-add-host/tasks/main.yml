@@ -51,6 +51,21 @@
   delay: 5
   ignore_errors: yes
 
+- name: auto-start vcenter vm
+  vmware_host_auto_start:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    esxi_hostname: "{{ ansible_host }}"
+    name: "{{ vcenter_appliance_name }}"
+    power_info:
+      start_action: powerOn
+      start_delay: 10
+      start_order: 1
+      stop_action: powerOff
+      wait_for_heartbeat: true
+  delegate_to: localhost
+
 - name: ensure iso directory exists on the datastore
   vsphere_file:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"

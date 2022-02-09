@@ -2,6 +2,8 @@
   hosts: all
   gather_facts: False
   become: no
+  collections:
+    - community.vmware
   vars:
     vcenter_datacenter: cloud
 

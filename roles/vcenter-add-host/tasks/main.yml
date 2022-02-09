@@ -52,7 +52,7 @@
   ignore_errors: yes
 
 - name: auto-start vcenter vm
-  vmware_host_auto_start:
+  community.vmware.vmware_host_auto_start:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"

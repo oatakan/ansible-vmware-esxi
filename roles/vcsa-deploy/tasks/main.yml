@@ -20,16 +20,17 @@
         vm_facts: {"virtual_machines": []}
       when: ansible_version.full is version('2.8.0', '>=')
 
-
 - block:
 
-    - include_tasks: mount_nfs.yml
+    - block:
+        - include_tasks: mount_nfs.yml
+        - include_tasks: deploy.yml
+        - include_tasks: unmount_nfs.yml
       when: vcenter_ova_file is not match('^https?://')
 
-    - include_tasks: deploy.yml
-
-    - include_tasks: unmount_nfs.yml
-      when: vcenter_ova_file is not match('^https?://')
+    # for ESXI 8.0, ovftool doesn't run on the host, you can specify http(s) link for the ova file
+    - include_tasks: deploy_pull_mode.yml
+      when: vcenter_ova_file is match('^https?://')
 
     - include_tasks: wait.yml
 

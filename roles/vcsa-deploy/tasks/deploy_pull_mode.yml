@@ -1,10 +1,17 @@
 ---
 
-- name: find ova file
-  find:
-    paths: '{{ network_mount_dir }}/images'
-    patterns: '{{ vcenter_ova_file | default("VMware-vCenter-Server-Appliance-6.7.0.30000*.ova") }}'
-  register: ova_file
+- name: check to see if ovftool_installer_zip_file is defined
+  fail:
+    msg: "you need to specify the download location with ovftool_installer_zip_file variable"
+  when: ovftool_installer_zip_file is undefined
+
+- name: install ovftool
+  ansible.builtin.unarchive:
+    src: '{{ ovftool_installer_zip_file }}'
+    dest: /tmp
+    remote_src: yes
+  delegate_to: localhost
+  connection: local
 
 - name: deploy appliance
   command: >
@@ -46,10 +53,10 @@
     --prop:guestinfo.cis.appliance.net.gateway="{{ vcenter_gateway | ipaddr }}"
     --prop:guestinfo.cis.appliance.net.dns.servers='{% for item in dns_servers %}{{ item }}{{ "," if not loop.last else "" }}{% endfor %}'
     {% endif %}
-    '{{ ova_file.files[0].path }}'
+    --pullUploadMode
+    '{{ vcenter_ova_file }}'
     vi://"{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}":"{{ ansible_password | default(ansible_ssh_password) | urlencode }}"@{{ ansible_host }}/
-  when:
-    - ova_file is success
-    - ova_file.matched is defined
-    - ova_file.matched | int > 0
-    - ova_file.files is defined
+  delegate_to: localhost
+  connection: local
+  vars:
+    ovftool: /tmp/ovftool/ovftool

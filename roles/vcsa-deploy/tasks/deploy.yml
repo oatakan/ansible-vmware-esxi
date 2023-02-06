@@ -1,10 +1,37 @@
 ---
 
-- name: find ova file
-  find:
-    paths: '{{ network_mount_dir }}/images'
-    patterns: '{{ vcenter_ova_file | default("VMware-vCenter-Server-Appliance-6.7.0.30000*.ova") }}'
-  register: ova_file
+- block:
+    - name: find ova file
+      find:
+        paths: '{{ network_mount_dir }}/images'
+        patterns: '{{ vcenter_ova_file | default("VMware-vCenter-Server-Appliance-6.7.0.30000*.ova") }}'
+      register: ova_file
+
+    - name: set ova file location
+      set_fact:
+        vcenter_ova_file_location: '{{ ova_file.files[0].path }}'
+  when: vcenter_ova_file is not match('^https?://')
+
+- block:
+    - name: check to see if ovftool_installer_zip_file is defined
+      fail:
+        msg: "you need to specify the download location with ovftool_installer_zip_file variable"
+      when: ovftool_installer_zip_file is undefined
+
+    - name: install ovftool
+      ansible.builtin.unarchive:
+        src: '{{ ovftool_installer_zip_file }}'
+        dest: /tmp
+        remote_src: yes
+
+    - name: set ovftool location
+      set_fact:
+        ovftool: /tmp/ovftool/ovftool
+
+    - name: set ova file location
+      set_fact:
+        vcenter_ova_file_location: '{{ vcenter_ova_fileh }}'
+  when: vcenter_ova_file is match('^https?://')
 
 - name: deploy appliance
   command: >
@@ -46,7 +73,10 @@
     --prop:guestinfo.cis.appliance.net.gateway="{{ vcenter_gateway | ipaddr }}"
     --prop:guestinfo.cis.appliance.net.dns.servers='{% for item in dns_servers %}{{ item }}{{ "," if not loop.last else "" }}{% endfor %}'
     {% endif %}
-    '{{ ova_file.files[0].path }}'
+    {% if vcenter_ova_file is match('^https?://') %}
+    --pullUploadMode
+    {% endif %}
+    '{{ vcenter_ova_file_location }}'
     vi://"{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}":"{{ ansible_password | default(ansible_ssh_password) | urlencode }}"@{{ ansible_host }}/
   when:
     - ova_file is success

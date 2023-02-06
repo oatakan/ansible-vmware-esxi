@@ -24,10 +24,12 @@
 - block:
 
     - include_tasks: mount_nfs.yml
+      when: vcenter_ova_file is not match('^https?://')
 
     - include_tasks: deploy.yml
 
     - include_tasks: unmount_nfs.yml
+      when: vcenter_ova_file is not match('^https?://')
 
     - include_tasks: wait.yml
 

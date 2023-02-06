@@ -18,6 +18,10 @@
     {{ ovftool }}
     --acceptAllEulas
     --noSSLVerify
+    --noSourceSSLVerify
+    --noDestinationSSLVerify
+    --disableVerification
+    --skipManifestCheck
     --X:injectOvfEnv
     --allowExtraConfig
     --X:enableHiddenProperties

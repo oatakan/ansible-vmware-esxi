@@ -19,9 +19,9 @@
   register: deploy_ovas
   failed_when:
     - deploy_ovas.rc != 0
-    - ('Duplicate names' not in deploy_ovas.stdout)
+    - ('Duplicate name' not in deploy_ovas.stdout)
   changed_when:
-    - deploy_ovas.stdout is undefined or ('Duplicate names' not in deploy_ovas.stdout)
+    - deploy_ovas.stdout is undefined or ('Duplicate name' not in deploy_ovas.stdout)
   delegate_to: localhost
   connection: local
   vars:

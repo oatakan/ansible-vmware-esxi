@@ -35,9 +35,9 @@
       guestinfo.cis.appliance.ntp.servers: '{% for item in ntp_servers %}{{ item }}{{ "," if not loop.last else "" }}{% endfor %}'
       guestinfo.cis.appliance.net.pnid: "{{ vcenter_fqdn }}"
       guestinfo.cis.appliance.net.mode: "{{ network_ip_scheme }}"
-      guestinfo.cis.appliance.net.addr: "{{ vcenter_ip_address | ipaddr }}"
+      guestinfo.cis.appliance.net.addr: "{{ vcenter_ip_address | ansible.utils.ipaddr }}"
       guestinfo.cis.appliance.net.prefix: "{{ vcenter_net_prefix }}"
-      guestinfo.cis.appliance.net.gateway: "{{ vcenter_gateway | ipaddr }}"
+      guestinfo.cis.appliance.net.gateway: "{{ vcenter_gateway | ansible.utils.ipaddr }}"
       guestinfo.cis.appliance.net.dns.servers: '{% for item in dns_servers %}{{ item }}{{ "," if not loop.last else "" }}{% endfor %}'
   when:
     - ova_file is success

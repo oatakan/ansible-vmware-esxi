@@ -1,0 +1,22 @@
+---
+
+- name: deploy ovas
+  command: >
+    {{ ovftool }}
+    --acceptAllEulas
+    --noSSLVerify
+    --X:injectOvfEnv
+    --allowExtraConfig
+    --X:connectionFileTransferRetryCount=3
+    --sourceType=OVA
+    --net:"nat"='{{ target_esx_portgroup }}'
+    --datastore='{{ target_esx_datastore }}'
+    --diskMode='{{ disk_mode }}'
+    --name="{{ item | replace('.ova','') | replace('-ovf','') }}"
+    --pullUploadMode
+    '{{ item }}'
+    vi://"{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}":"{{ ansible_password | default(ansible_ssh_password) | urlencode }}"@{{ ansible_host }}/
+  delegate_to: localhost
+  connection: local
+  vars:
+    ovftool: /tmp/ovftool/ovftool

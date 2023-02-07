@@ -19,6 +19,7 @@
   ansible.builtin.unarchive:
     src: '{{ ovftool_installer_zip_file }}'
     dest: /tmp
+    creates: /tmp/ovftool/ovftool
     remote_src: yes
   delegate_to: localhost
   connection: local
@@ -58,9 +59,9 @@
     --name='{{ vcenter_appliance_name }}'
     --prop:guestinfo.cis.appliance.net.pnid="{{ vcenter_fqdn }}"
     --prop:guestinfo.cis.appliance.net.mode="static"
-    --prop:guestinfo.cis.appliance.net.addr="{{ vcenter_ip_address | ipaddr }}"
+    --prop:guestinfo.cis.appliance.net.addr="{{ vcenter_ip_address | ansible.utils.ipaddr }}"
     --prop:guestinfo.cis.appliance.net.prefix="{{ vcenter_net_prefix }}"
-    --prop:guestinfo.cis.appliance.net.gateway="{{ vcenter_gateway | ipaddr }}"
+    --prop:guestinfo.cis.appliance.net.gateway="{{ vcenter_gateway | ansible.utils.ipaddr }}"
     --prop:guestinfo.cis.appliance.net.dns.servers='{% for item in dns_servers %}{{ item }}{{ "," if not loop.last else "" }}{% endfor %}'
     {% endif %}
     --pullUploadMode

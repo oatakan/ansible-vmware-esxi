@@ -14,3 +14,7 @@ target_esx_portgroup: mgmt
 
 vcenter_datacenter: cloud
 vcenter_cluster: mylab
+
+default_ports:
+  http: 80
+  https: 443

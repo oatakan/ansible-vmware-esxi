@@ -1,8 +1,8 @@
 ---
 
-- name: obtain thumbprint
-  command: openssl x509 -in /etc/vmware/ssl/rui.crt -fingerprint -sha1 -noout
-  register: esxi_ssl_thumbprint
+#- name: obtain thumbprint
+#  command: openssl x509 -in /etc/vmware/ssl/rui.crt -fingerprint -sha1 -noout
+#  register: esxi_ssl_thumbprint
 
 - name: add ESXi Host to vCenter under a specific folder
   vmware_host:
@@ -64,7 +64,7 @@
       start_delay: 10
       start_order: 1
       stop_action: powerOff
-      wait_for_heartbeat: true
+      wait_for_heartbeat: 'true'
   delegate_to: localhost
 
 - name: ensure iso directory exists on the datastore

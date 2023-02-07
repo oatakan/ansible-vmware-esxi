@@ -1,14 +1,5 @@
 ---
 
-- name: gather information about vms and templates
-  vmware_vm_info:
-    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
-    username: "{{ lookup('env', 'VMWARE_USER') }}"
-    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-    validate_certs: no
-  delegate_to: localhost
-  register: vm_facts
-
 #- name: deploy ovas
 #  vmware_deploy_ovf:
 #    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
@@ -29,10 +20,6 @@
 #    datastore: '{{ target_esx_datastore }}'
 #    inject_ovf_env: yes
 #    power_on: yes
-#  loop: "{{ ova_files }}"
-#  when:
-#    - ova_files is defined
-#    - item | replace('.ova','') | replace('-ovf','') not in vm_facts.virtual_machines | list
 
 - name: deploy ovas
   command: >
@@ -49,7 +36,3 @@
     --name="{{ item | replace('.ova','') | replace('-ovf','') }}"
     '{{ network_mount_dir }}/{{ ova_path}}/{{ item }}'
     vi://"{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}":"{{ ansible_password | default(ansible_ssh_password) | urlencode }}"@{{ ansible_host }}/
-  loop: "{{ ova_files }}"
-  when:
-    - ova_files is defined
-    - item | replace('.ova','') | replace('-ovf','') not in vm_facts.virtual_machines | list

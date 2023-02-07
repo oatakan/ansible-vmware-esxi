@@ -1,7 +1,35 @@
 ---
+
+- name: gather information about vms and templates
+  vmware_vm_info:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: no
+  delegate_to: localhost
+  register: vm_facts
+
 - block:
     - include_tasks: mount_nfs.yml
+      when: non_http_link_ova_files | length
+
+    - include_tasks: http_upload_setup.yml
+      when: http_link_ova_files | length
 
     - include_tasks: deploy.yml
+      loop: "{{ non_http_link_ova_files }}"
+      when:
+        - non_http_link_ova_files is defined
+        - non_http_link_ova_files | length
+        - item | replace('.ova','') | replace('-ovf','') not in vm_facts.virtual_machines | list
+
+    - include_tasks: deploy_pull_mode.yml
+      loop: "{{ http_link_ova_files }}"
+      when:
+        - http_link_ova_files is defined
+        - http_link_ova_files | length
+        - item | replace('.ova','') | replace('-ovf','') not in vm_facts.virtual_machines | list
+
   always:
     - include_tasks: unmount_nfs.yml
+      when: non_http_link_ova_files | length

@@ -4,3 +4,5 @@
     name: vcenter-deploy-ova
 
 - include_tasks: make_template.yml
+  loop: "{{ ova_files }}"
+  when: ova_files is defined

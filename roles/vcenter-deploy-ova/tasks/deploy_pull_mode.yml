@@ -12,7 +12,7 @@
     --net:"nat"='{{ target_esx_portgroup }}'
     --datastore='{{ target_esx_datastore }}'
     --diskMode='{{ disk_mode }}'
-    --name="{{ item | urlsplit('path') | basename | replace('.ova','') | replace('-ovf','') }}"
+    --name="{{ item | basename | replace('.ova','') | replace('-ovf','') }}"
     --pullUploadMode
     '{{ item }}'
     vi://"{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}":"{{ ansible_password | default(ansible_ssh_password) | urlencode }}"@{{ ansible_host }}/

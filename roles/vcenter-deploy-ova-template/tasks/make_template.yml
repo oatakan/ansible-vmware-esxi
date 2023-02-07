@@ -8,7 +8,7 @@
     validate_certs: no
     datacenter: '{{ vcenter_datacenter }}'
     folder: /{{ vcenter_datacenter }}/vm
-    name: "{{ item | replace('.ova','') | replace('-ovf','') }}"
+    name: "{{ item | basename | replace('.ova','') | replace('-ovf','') }}"
     state: present
     snapshot_name: Linked
     description: Linked
@@ -25,7 +25,7 @@
     validate_certs: no
     datacenter: '{{ vcenter_datacenter }}'
     cluster: '{{ vcenter_cluster }}'
-    name: "{{ item | replace('.ova','') | replace('-ovf','') }}"
+    name: "{{ item | basename | replace('.ova','') | replace('-ovf','') }}"
     is_template: yes
     folder: /{{ vcenter_datacenter }}/vm/template
   delegate_to: localhost
@@ -40,7 +40,7 @@
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
     validate_certs: no
     datacenter: '{{ vcenter_datacenter }}'
-    name: "{{ item | replace('.ova','') | replace('-ovf','') }}"
+    name: "{{ item | basename | replace('.ova','') | replace('-ovf','') }}"
     dest_folder: /{{ vcenter_datacenter }}/vm/template
   delegate_to: localhost
   loop: "{{ ova_files }}"

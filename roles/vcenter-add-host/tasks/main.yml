@@ -15,7 +15,8 @@
     esxi_hostname: "{{ ansible_host }}"
     esxi_username: root
     esxi_password: "{{ ansible_password | default(ansible_ssh_password) }}"
-    esxi_ssl_thumbprint: "{{ esxi_ssl_thumbprint.stdout | replace('SHA1 Fingerprint=','') }}"
+    #esxi_ssl_thumbprint: "{{ esxi_ssl_thumbprint.stdout | replace('SHA1 Fingerprint=','') }}"
+    fetch_ssl_thumbprint: true
     state: present
     add_connected: True
   delegate_to: localhost

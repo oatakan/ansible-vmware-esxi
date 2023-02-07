@@ -1,5 +1,8 @@
 ---
 
+- name: disable firewall
+  command: esxcli network firewall set --enabled false
+
 - name: check to see if ovftool_installer_zip_file is defined
   fail:
     msg: "you need to specify the download location with ovftool_installer_zip_file variable"

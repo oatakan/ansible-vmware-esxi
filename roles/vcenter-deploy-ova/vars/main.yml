@@ -3,4 +3,4 @@
 http_link_ova_files: "{{ ova_files | select('search', '^https?://*') }}"
 non_http_link_ova_files: "{{ ova_files | difference(ova_files | select('search', '^https?://*')) }}"
 
-vcenter_ova_file_parsed: "{{ vcenter_ova_file | urlsplit }}"
+vcenter_ova_file_parsed: "{{ item | urlsplit }}"

@@ -16,6 +16,12 @@
     --pullUploadMode
     '{{ item }}'
     vi://"{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}":"{{ ansible_password | default(ansible_ssh_password) | urlencode }}"@{{ ansible_host }}/
+  register: deploy_ovas
+  failed_when:
+    - deploy_ovas.rc != 0
+    - ('Duplicate names' not in deploy_ovas.msg)
+  changed_when:
+    - deploy_ovas.msg is undefined or ('Duplicate names' not in deploy_ovas.msg)
   delegate_to: localhost
   connection: local
   vars:

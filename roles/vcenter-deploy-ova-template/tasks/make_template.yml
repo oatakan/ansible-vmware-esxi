@@ -14,7 +14,7 @@
     description: Linked
   delegate_to: localhost
 
-- name: move templates to template folder
+- name: move vm to template folder
   vmware_guest_move:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"

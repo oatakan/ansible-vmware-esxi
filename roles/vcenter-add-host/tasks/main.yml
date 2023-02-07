@@ -64,7 +64,7 @@
       start_delay: 10
       start_order: 1
       stop_action: powerOff
-      wait_for_heartbeat: 'true'
+      wait_for_heartbeat: yes
   delegate_to: localhost
 
 - name: ensure iso directory exists on the datastore

@@ -15,7 +15,7 @@
   delegate_to: localhost
 
 - name: move vm to template folder
-  community.vmware.vmware_guest_move module:
+  community.vmware.vmware_guest_move:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"

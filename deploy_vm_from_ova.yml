@@ -25,7 +25,7 @@
   tasks:
     - block:
         - name: mount NFS datastore
-          vmware_host_datastore:
+          community.vmware.vmware_host_datastore:
             hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
             username: "{{ lookup('env', 'VMWARE_USER') }}"
             password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
@@ -39,7 +39,7 @@
           delegate_to: localhost
 
         - name: deploy ova
-          command: >
+          ansible.builtin.command: >
             {{ ovftool }}
             --acceptAllEulas
             --noSSLVerify
@@ -69,7 +69,7 @@
 
       always:
         - name: unmount NFS datastore
-          vmware_host_datastore:
+          community.vmware.vmware_host_datastore:
             hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
             username: "{{ lookup('env', 'VMWARE_USER') }}"
             password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
@@ -84,7 +84,7 @@
 
     # smoke test that nginx is serving requests
     - name: proper response from nginx is received
-      uri:
+      ansible.builtin.uri:
         url: http://192.168.1.53
         return_content: yes
       register: response

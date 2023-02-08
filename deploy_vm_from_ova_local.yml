@@ -18,7 +18,7 @@
       systemctl start sshd
   tasks:
     - name: check file
-      stat:
+      ansible.builtin.stat:
         path: "{{ ova_file }}"
         get_checksum: no
       delegate_to: localhost
@@ -30,7 +30,7 @@
       when: not check_ova_file.stat.exists
 
     - name: deploy ova
-      vmware_deploy_ovf:
+      community.vmware.vmware_deploy_ovf:
         hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
         username: "{{ lookup('env', 'VMWARE_USER') }}"
         password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
@@ -58,7 +58,7 @@
 
     # smoke test that nginx is serving requests
     - name: proper response from nginx is received
-      uri:
+      ansible.builtin.uri:
         url: http://192.168.1.53
         return_content: yes
       register: response

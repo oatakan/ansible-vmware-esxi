@@ -1,13 +1,13 @@
 ---
 
 - name: find ova file
-  find:
+  ansible.builtin.find:
     paths: '{{ network_mount_dir }}/images'
     patterns: '{{ vcenter_ova_file | default("VMware-vCenter-Server-Appliance-6.7.0.30000*.ova") }}'
   register: ova_file
 
 - name: deploy appliance
-  command: >
+  ansible.builtin.command: >
     {{ ovftool }}
     --acceptAllEulas
     --noSSLVerify

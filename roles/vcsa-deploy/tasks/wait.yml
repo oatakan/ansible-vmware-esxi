@@ -1,7 +1,7 @@
 ---
 
 - name: wait for deployment to finish
-  uri:
+  ansible.builtin.uri:
     url: https://{{ vcenter_fqdn }}
     return_content: no
     validate_certs: no

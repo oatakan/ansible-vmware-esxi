@@ -7,7 +7,7 @@
   register: set_ova_http_upload_rule
 
 - name: restart firewall service
-  command: esxcli network firewall refresh
+  ansible.builtin.command: esxcli network firewall refresh
   when: set_ova_http_upload_rule is changed
 
 - name: check to see if ovftool_installer_zip_file is defined
@@ -25,7 +25,7 @@
   connection: local
 
 - name: deploy appliance
-  command: >
+  ansible.builtin.command: >
     {{ ovftool }}
     --acceptAllEulas
     --noSSLVerify

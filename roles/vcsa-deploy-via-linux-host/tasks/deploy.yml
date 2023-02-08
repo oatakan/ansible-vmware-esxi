@@ -1,13 +1,13 @@
 ---
 
 - name: find ova file
-  find:
+  ansible.builtin.find:
     paths: '{{ iso_mount_dir }}/vcsa'
     patterns: '*.ova'
   register: ova_file
 
 - name: deploy appliance
-  vmware_deploy_ovf:
+  community.vmware.vmware_deploy_ovf:
     hostname: "{{ ansible_hostname }}"
     username: "{{ ansible_user | default(ansible_ssh_user) | default('root') }}"
     password: "{{ ansible_password | default(ansible_ssh_password) }}"

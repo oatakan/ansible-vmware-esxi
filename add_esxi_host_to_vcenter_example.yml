@@ -8,7 +8,7 @@
 
   tasks:
     - name: add ESXi Host to vCenter under a specific folder
-      vmware_host:
+      community.vmware.vmware_host:
         hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
         username: "{{ lookup('env', 'VMWARE_USER') }}"
         password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
@@ -23,7 +23,7 @@
       delegate_to: localhost
 
     - name: mount NFS datastore to ESXi
-      vmware_host_datastore:
+      community.vmware.vmware_host_datastore:
         hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
         username: "{{ lookup('env', 'VMWARE_USER') }}"
         password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
@@ -40,7 +40,7 @@
         - { 'name': 'NasDS_vol01', 'server': '192.168.1.103', 'path': '/mnt/vault/work/install', 'type': 'nfs'}
 
     - name: exit maintenance mode
-      vmware_maintenancemode:
+      community.vmware.vmware_maintenancemode:
         hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
         username: "{{ lookup('env', 'VMWARE_USER') }}"
         password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"

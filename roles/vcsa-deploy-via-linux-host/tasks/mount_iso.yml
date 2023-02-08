@@ -1,13 +1,13 @@
 ---
 
 - name: ensure the mount directory exists
-  file:
+  ansible.builtin.file:
     path: '{{ iso_mount_dir }}'
     state: directory
     mode: 0755
 
 - name: ensure the iso file is mounted
-  mount:
+  ansible.posix.mount:
     path: '{{ iso_mount_dir }}'
     src: '{{ network_mount_dir }}/{{ vcsa_iso }}'
     fstype: iso9660

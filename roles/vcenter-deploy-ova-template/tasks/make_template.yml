@@ -1,7 +1,7 @@
 ---
 
 - name: create a snapshot
-  vmware_guest_snapshot:
+  community.vmware.vmware_guest_snapshot:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
@@ -15,7 +15,7 @@
   delegate_to: localhost
 
 - name: move vm to template folder
-  vmware_guest_move:
+  community.vmware.vmware_guest_move module:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
@@ -26,7 +26,7 @@
   delegate_to: localhost
 
 - name: convert vm to template
-  vmware_guest:
+  community.vmware.vmware_guest:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"

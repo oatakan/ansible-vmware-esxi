@@ -1,7 +1,7 @@
 ---
 
 #- name: deploy ovas
-#  vmware_deploy_ovf:
+#  community.vmware.vmware_deploy_ovf:
 #    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
 #    username: "{{ lookup('env', 'VMWARE_USER') }}"
 #    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
@@ -22,7 +22,7 @@
 #    power_on: yes
 
 - name: deploy ovas
-  command: >
+  ansible.builtin.command: >
     {{ ovftool }}
     --acceptAllEulas
     --noSSLVerify

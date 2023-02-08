@@ -5,7 +5,7 @@
 #  register: esxi_ssl_thumbprint
 
 - name: add ESXi Host to vCenter under a specific folder
-  vmware_host:
+  community.vmware.vmware_host:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
@@ -22,7 +22,7 @@
   delegate_to: localhost
 
 - name: wait for vca to show up in vcenter inventory
-  vmware_vm_info:
+  community.vmware.vmware_vm_info:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
@@ -36,7 +36,7 @@
   ignore_errors: yes
 
 - name: move vcenter vm to infra resource pool
-  vmware_guest:
+  community.vmware.vmware_guest:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
@@ -68,7 +68,7 @@
   delegate_to: localhost
 
 - name: ensure iso directory exists on the datastore
-  vsphere_file:
+  community.vmware.vsphere_file module:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"

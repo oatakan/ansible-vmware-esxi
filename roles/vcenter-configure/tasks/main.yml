@@ -1,7 +1,7 @@
 ---
 
 - name: ensure datacenter exists
-  vmware_datacenter:
+  community.vmware.vmware_datacenter:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
@@ -11,7 +11,7 @@
   delegate_to: localhost
 
 - name: ensure cluster exists
-  vmware_cluster:
+  community.vmware.vmware_cluster:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
@@ -24,7 +24,7 @@
   delegate_to: localhost
 
 - name: ensure resource pools exist
-  vmware_resource_pool:
+  community.vmware.vmware_resource_pool:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
@@ -37,7 +37,7 @@
   loop: "{{ vcenter_resource_pools }}"
 
 - name: ensure folders exist
-  vcenter_folder:
+  community.vmware.vcenter_folder:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
@@ -50,7 +50,7 @@
   loop: "{{ vcenter_vm_folders }}"
 
 - name: add a new vCenter license
-  vcenter_license:
+  community.vmware.vcenter_license:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"

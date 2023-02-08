@@ -14,7 +14,7 @@
 
     - include_tasks: deploy.yml
       loop: "{{ non_http_link_ova_files }}"
-      when: item | basename | replace('.ova','') | replace('-ovf','') not in vm_facts.virtual_machines | list
+      when: item | basename | replace('.ova','') | replace('-ovf','') not in (vm_facts.virtual_machines | map(attribute='guest_name') | list)
 
   always:
     - include_tasks: unmount_nfs.yml
@@ -30,7 +30,7 @@
 
     - include_tasks: deploy_pull_mode.yml
       loop: "{{ http_link_ova_files }}"
-      when: item | basename | replace('.ova','') | replace('-ovf','') not in vm_facts.virtual_machines | list
+      when: item | basename | replace('.ova','') | replace('-ovf','') not in (vm_facts.virtual_machines | map(attribute='guest_name') | list)
   when:
     - http_link_ova_files is defined
     - http_link_ova_files | length

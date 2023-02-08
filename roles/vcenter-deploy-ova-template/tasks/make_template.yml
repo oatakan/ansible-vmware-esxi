@@ -24,7 +24,7 @@
     cluster: '{{ vcenter_cluster }}'
     name: "{{ item | basename | replace('.ova','') | replace('-ovf','') }}"
     is_template: yes
-    folder: /{{ vcenter_datacenter }}/vm/template
+    folder: /{{ vcenter_datacenter }}/vm
   delegate_to: localhost
 
 - name: move vm to template folder

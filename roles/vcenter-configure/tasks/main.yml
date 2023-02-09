@@ -30,7 +30,6 @@
     datacenter_name: '{{ vcenter_datacenter }}'
     cluster_name: '{{ vcenter_cluster }}'
     enable: "{{ enable_drs }}"
-    state: present
   delegate_to: localhost
 
 - name: ensure vsan is enabled on the cluster
@@ -42,7 +41,6 @@
     datacenter_name: '{{ vcenter_datacenter }}'
     cluster_name: '{{ vcenter_cluster }}'
     enable: "{{ enable_vsan }}"
-    state: present
   delegate_to: localhost
 
 - name: ensure resource pools exist

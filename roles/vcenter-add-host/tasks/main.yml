@@ -68,7 +68,7 @@
   delegate_to: localhost
 
 - name: ensure iso directory exists on the datastore
-  community.vmware.vsphere_file module:
+  community.vmware.vsphere_file:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"

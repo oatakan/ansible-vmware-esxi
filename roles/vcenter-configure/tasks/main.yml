@@ -42,6 +42,7 @@
     cluster_name: '{{ vcenter_cluster }}'
     enable: "{{ enable_vsan }}"
   delegate_to: localhost
+  when: enable_vsan
 
 - name: ensure resource pools exist
   community.vmware.vmware_resource_pool:

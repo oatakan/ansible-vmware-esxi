@@ -18,8 +18,30 @@
     validate_certs: no
     datacenter_name: '{{ vcenter_datacenter }}'
     cluster_name: '{{ vcenter_cluster }}'
-    enable_drs: '{{ enable_drs }}'
-    enable_vsan: '{{ enable_vsan }}'
+    state: present
+  delegate_to: localhost
+
+- name: ensure drs is enabled on the cluster
+  community.vmware.vmware_cluster_drs:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: no
+    datacenter_name: '{{ vcenter_datacenter }}'
+    cluster_name: '{{ vcenter_cluster }}'
+    enable: "{{ enable_drs }}"
+    state: present
+  delegate_to: localhost
+
+- name: ensure vsan is enabled on the cluster
+  community.vmware.vmware_cluster_vsan:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: no
+    datacenter_name: '{{ vcenter_datacenter }}'
+    cluster_name: '{{ vcenter_cluster }}'
+    enable: "{{ enable_vsan }}"
     state: present
   delegate_to: localhost
 

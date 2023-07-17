@@ -5,43 +5,39 @@
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-    validate_certs: no
+    validate_certs: false
     datacenter_name: '{{ vcenter_datacenter }}'
     state: present
-  delegate_to: localhost
 
 - name: ensure cluster exists
   community.vmware.vmware_cluster:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-    validate_certs: no
+    validate_certs: false
     datacenter_name: '{{ vcenter_datacenter }}'
     cluster_name: '{{ vcenter_cluster }}'
     state: present
-  delegate_to: localhost
 
 - name: ensure drs is enabled on the cluster
   community.vmware.vmware_cluster_drs:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-    validate_certs: no
+    validate_certs: false
     datacenter_name: '{{ vcenter_datacenter }}'
     cluster_name: '{{ vcenter_cluster }}'
     enable: "{{ enable_drs }}"
-  delegate_to: localhost
 
 - name: ensure vsan is enabled on the cluster
   community.vmware.vmware_cluster_vsan:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-    validate_certs: no
+    validate_certs: false
     datacenter_name: '{{ vcenter_datacenter }}'
     cluster_name: '{{ vcenter_cluster }}'
     enable: "{{ enable_vsan }}"
-  delegate_to: localhost
   when: enable_vsan
 
 - name: ensure resource pools exist
@@ -49,12 +45,11 @@
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-    validate_certs: no
+    validate_certs: false
     datacenter: '{{ vcenter_datacenter }}'
     cluster: '{{ vcenter_cluster }}'
     resource_pool: '{{ item }}'
     state: present
-  delegate_to: localhost
   loop: "{{ vcenter_resource_pools }}"
 
 - name: ensure folders exist
@@ -62,12 +57,11 @@
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-    validate_certs: no
+    validate_certs: false
     datacenter: '{{ vcenter_datacenter }}'
     folder_name: "{{ item }}"
     folder_type: vm
     state: present
-  delegate_to: localhost
   loop: "{{ vcenter_vm_folders }}"
 
 - name: add a new vCenter license
@@ -75,8 +69,11 @@
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-    validate_certs: no
     license: "{{ vcenter_license }}"
+    validate_certs: false
     state: present
-  delegate_to: localhost
   when: (vcenter_license|length | default(0)) > 0
+
+- name: ESXi license
+  ansible.builtin.include_tasks: esxi_license.yml
+  when: (esxi_license|length | default(0)) > 0

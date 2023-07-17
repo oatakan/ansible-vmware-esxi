@@ -3,11 +3,11 @@
 - name: wait for deployment to finish
   ansible.builtin.uri:
     url: https://{{ vcenter_fqdn }}
-    return_content: no
-    validate_certs: no
+    return_content: false
+    validate_certs: false
   delegate_to: localhost
   register: response
   until: response is success
   retries: '{{ wait_for_connection_retries }}'
   delay: '{{ wait_for_connection_delay }}'
-  ignore_errors: yes
+  ignore_errors: true

@@ -1,7 +1,7 @@
 - name: add ESXi host to vcenter
   hosts: all
   gather_facts: False
-  become: no
+  become: false
   vars:
     datacenter: cloud
     folder: /cloud/host/testhost
@@ -19,7 +19,7 @@
         esxi_password: '{{ ansible_password }}'
         state: present
         add_connected: True
-      ignore_errors: yes
+      ignore_errors: true
       delegate_to: localhost
 
     - name: mount NFS datastore to ESXi
@@ -32,7 +32,7 @@
         datastore_type: '{{ item.type }}'
         nfs_server: '{{ item.server }}'
         nfs_path: '{{ item.path }}'
-        nfs_ro: yes
+        nfs_ro: true
         esxi_hostname: '{{ ansible_host }}'
         state: present
       delegate_to: localhost
@@ -47,5 +47,5 @@
         esxi_hostname: '{{ ansible_host }}'
         timeout: 3600
         state: absent
-      ignore_errors: yes
+      ignore_errors: true
       delegate_to: localhost

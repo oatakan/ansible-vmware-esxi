@@ -1,7 +1,7 @@
 - name: deploy vcenter appliance
   hosts: all
-  gather_facts: no
-  become: no
+  gather_facts: false
+  become: false
   vars:
     network_share: 192.168.1.103:/mnt/vault/work/install
     vcenter_netmask: 255.255.255.0
@@ -26,7 +26,7 @@
         opts: nolock
         state: mounted
       delegate_to: localhost
-      become: yes
+      become: true
 
   roles:
     - role: vcsa-deploy-via-linux-host
@@ -38,7 +38,7 @@
         path: '{{ network_mount_dir }}'
         state: unmounted
       delegate_to: localhost
-      become: yes
+      become: true
 
     - name: ensure the mount directory doesn't exist
       ansible.builtin.file:

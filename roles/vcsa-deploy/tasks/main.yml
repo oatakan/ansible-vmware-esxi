@@ -6,7 +6,7 @@
         hostname: "{{ ansible_host }}"
         username: root
         password: "{{ ansible_password | default(ansible_ssh_password) }}"
-        validate_certs: no
+        validate_certs: false
       delegate_to: localhost
       register: vm_facts
   rescue:

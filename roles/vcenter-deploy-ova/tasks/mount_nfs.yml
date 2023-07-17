@@ -2,4 +2,4 @@
 
 - name: mount nfs share
   ansible.builtin.command: esxcli storage nfs add --host={{ network_host }} --share={{ network_path }} --volume-name=nfs_vol01 --readonly
-  ignore_errors: yes
+  ignore_errors: true

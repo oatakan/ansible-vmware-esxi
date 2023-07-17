@@ -1,7 +1,7 @@
 - name: add ESXi host to vcenter
   hosts: all
   gather_facts: False
-  become: no
+  become: false
   collections:
     - community.vmware
   vars:

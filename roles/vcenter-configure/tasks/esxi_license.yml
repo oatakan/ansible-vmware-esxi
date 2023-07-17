@@ -1,0 +1,20 @@
+---
+
+- name: gather vcenter host facts
+  vmware.vmware_rest.vcenter_host_info:
+    vcenter_hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    vcenter_username: "{{ lookup('env', 'VMWARE_USER') }}"
+    vcenter_password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    vcenter_validate_certs: false
+  register: vcenter_host_facts
+
+- name: add a new ESXi license
+  community.vmware.vcenter_license:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    license: "{{ esxi_license }}"
+    esxi_hostname: "{{ item.name }}"
+    validate_certs: false
+    state: present
+  loop: "{{ vcenter_host_facts.value }}"

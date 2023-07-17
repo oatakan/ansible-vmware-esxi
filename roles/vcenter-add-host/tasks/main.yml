@@ -9,7 +9,7 @@
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-    validate_certs: no
+    validate_certs: false
     datacenter_name: "{{ vcenter_datacenter }}"
     cluster_name: "{{ vcenter_cluster }}"
     esxi_hostname: "{{ ansible_host }}"
@@ -26,21 +26,21 @@
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-    validate_certs: no
+    validate_certs: false
     vm_type: vm
   delegate_to: localhost
   register: vm_facts
   until: (vm_facts.virtual_machines | default([]) | selectattr('guest_name', 'equalto', vcenter_appliance_name) | list) | length > 0
   retries: 10
   delay: 3
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: move vcenter vm to infra resource pool
   community.vmware.vmware_guest:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-    validate_certs: no
+    validate_certs: false
     datacenter: '{{ vcenter_datacenter }}'
     cluster: '{{ vcenter_cluster }}'
     name: "{{ vcenter_appliance_name }}"
@@ -50,7 +50,7 @@
   until: move_vcenter_vm is success
   retries: 30
   delay: 5
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: auto-start vcenter vm
   community.vmware.vmware_host_auto_start:
@@ -64,7 +64,7 @@
       start_delay: 10
       start_order: 1
       stop_action: powerOff
-      wait_for_heartbeat: yes
+      wait_for_heartbeat: true
   delegate_to: localhost
 
 - name: ensure iso directory exists on the datastore
@@ -72,7 +72,7 @@
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-    validate_certs: no
+    validate_certs: false
     datacenter: '{{ vcenter_datacenter }}'
     datastore: '{{ target_esx_datastore }}'
     path: iso

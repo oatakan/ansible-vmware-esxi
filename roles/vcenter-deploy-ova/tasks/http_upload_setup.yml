@@ -20,6 +20,6 @@
     src: '{{ ovftool_installer_zip_file }}'
     dest: /tmp
     creates: /tmp/ovftool/ovftool
-    remote_src: yes
+    remote_src: true
   delegate_to: localhost
   connection: local

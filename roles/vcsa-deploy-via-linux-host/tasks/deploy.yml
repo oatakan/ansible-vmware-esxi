@@ -12,8 +12,8 @@
     username: "{{ ansible_user | default(ansible_ssh_user) | default('root') }}"
     password: "{{ ansible_password | default(ansible_ssh_password) }}"
     ovf: '{{ ova_file.files[0] }}'
-    wait_for_ip_address: yes
-    validate_certs: no
+    wait_for_ip_address: true
+    validate_certs: false
     name: '{{ vcenter_appliance_name }}'
     networks: '{"Network 1": "{{ target_esx_portgroup }}"}'
     datastore: '{{ target_esx_datastore }}'

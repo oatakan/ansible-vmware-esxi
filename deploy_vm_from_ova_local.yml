@@ -1,7 +1,7 @@
 - name: deploy vm from ova
   hosts: all
-  gather_facts: no
-  become: no
+  gather_facts: false
+  become: false
   vars:
     vcenter_datacenter: cloud
     vcenter_cluster: mylab
@@ -20,7 +20,7 @@
     - name: check file
       ansible.builtin.stat:
         path: "{{ ova_file }}"
-        get_checksum: no
+        get_checksum: false
       delegate_to: localhost
       register: check_ova_file
 
@@ -34,7 +34,7 @@
         hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
         username: "{{ lookup('env', 'VMWARE_USER') }}"
         password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-        validate_certs: no
+        validate_certs: false
         datacenter: '{{ vcenter_datacenter }}'
         ovf: "{{ ova_file }}"
         name: "{{ vm_name }}"
@@ -52,20 +52,20 @@
           "bridged": '{{ target_esx_portgroup }}'
         cluster: '{{ vcenter_cluster }}'
         datastore: '{{ target_esx_datastore }}'
-        inject_ovf_env: yes
-        power_on: yes
+        inject_ovf_env: true
+        power_on: true
       delegate_to: localhost
 
     # smoke test that nginx is serving requests
     - name: proper response from nginx is received
       ansible.builtin.uri:
         url: http://192.168.1.53
-        return_content: yes
+        return_content: true
       register: response
       until: "'Bitnami NGINX Open Source' in response.content"
       retries: 50
       delay: 30
-      ignore_errors: yes
+      ignore_errors: true
       delegate_to: localhost
 
     - name: output url

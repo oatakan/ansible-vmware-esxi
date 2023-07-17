@@ -72,8 +72,5 @@
     license: "{{ vcenter_license }}"
     validate_certs: false
     state: present
+  ignore_errors: true
   when: (vcenter_license|length | default(0)) > 0
-
-- name: ESXi license
-  ansible.builtin.include_tasks: esxi_license.yml
-  when: (esxi_license|length | default(0)) > 0

@@ -6,6 +6,7 @@
     vcenter_username: "{{ lookup('env', 'VMWARE_USER') }}"
     vcenter_password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
     vcenter_validate_certs: false
+  delegate_to: localhost
   register: vcenter_host_facts
 
 - name: add a new ESXi license
@@ -17,4 +18,6 @@
     esxi_hostname: "{{ item.name }}"
     validate_certs: false
     state: present
+  delegate_to: localhost
   loop: "{{ vcenter_host_facts.value }}"
+  ignore_errors: true

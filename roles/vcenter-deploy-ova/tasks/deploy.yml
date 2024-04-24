@@ -5,7 +5,7 @@
 #    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
 #    username: "{{ lookup('env', 'VMWARE_USER') }}"
 #    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-#    validate_certs: no
+#    validate_certs: false
 #    datacenter: '{{ vcenter_datacenter }}'
 #    ovf: "{{ network_mount_dir }}/{{ ova_path}}/{{ item }}"
 #    name: "{{ item | replace('.ova','') | replace('-ovf','') }}"
@@ -18,8 +18,8 @@
 #      "nat": '{{ target_esx_portgroup }}'
 #    cluster: '{{ vcenter_cluster }}'
 #    datastore: '{{ target_esx_datastore }}'
-#    inject_ovf_env: yes
-#    power_on: yes
+#    inject_ovf_env: true
+#    power_on: true
 
 - name: deploy ovas
   ansible.builtin.command: >

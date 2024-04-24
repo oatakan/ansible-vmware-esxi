@@ -2,8 +2,8 @@
 
 vcenter_datacenter: cloud
 vcenter_cluster: mylab
-enable_drs: yes
-enable_vsan: no
+enable_drs: true
+enable_vsan: false
 
 vcenter_resource_pools:
   - infra

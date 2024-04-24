@@ -1,7 +1,7 @@
 - name: deploy vcenter appliance
   hosts: all
-  gather_facts: no
-  become: no
+  gather_facts: false
+  become: false
   vars:
     network_host: 192.168.1.103
     network_path: /mnt/vault/work/install

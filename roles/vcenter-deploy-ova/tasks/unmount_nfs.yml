@@ -2,4 +2,4 @@
 
 - name: unmount nfs share
   ansible.builtin.command: esxcli storage nfs remove --volume-name=nfs_vol01
-  ignore_errors: yes
+  ignore_errors: true

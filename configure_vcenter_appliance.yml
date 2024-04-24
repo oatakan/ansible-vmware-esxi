@@ -1,7 +1,8 @@
 - name: configure vcenter appliance
-  hosts: all
-  gather_facts: no
-  become: no
+  hosts: localhost
+  gather_facts: false
+  become: false
+  connection: local
 
   roles:
     - vcenter-configure

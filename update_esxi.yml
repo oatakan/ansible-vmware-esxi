@@ -1,0 +1,6 @@
+- name: update esxi
+  hosts: all
+  gather_facts: false
+  become: false
+  roles:
+    - esxi-update

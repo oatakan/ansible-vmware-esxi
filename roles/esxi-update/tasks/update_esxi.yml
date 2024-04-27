@@ -1,0 +1,80 @@
+---
+
+- name: update esxi
+  block:
+    - name: enter maint mode
+      ansible.builtin.command: esxcli system maintenanceMode set --enable true
+      register: enter_maint_mode
+      failed_when:
+        - enter_maint_mode.rc != 0
+        - enter_maint_mode.stdout is defined
+        - ('Maintenance mode is already enabled') not in enter_maint_mode.stdout
+      changed_when:
+        - enter_maint_mode.rc == 0
+
+    - block:
+        - name: update
+          ansible.builtin.command: >
+            esxcli software profile update
+            -p {{ esxi_update_profile_name }}
+            -d https://hostupdate.vmware.com/software/VUM/PRODUCTION/main/vmw-depot-index.xml
+            --no-hardware-warning
+          register: esxi_software_profile_update
+      rescue:
+        - block:
+            - name: adjust memory
+              include_tasks: fix_cli_mem.yml
+              vars:
+                esxi_cli_mem_from: '{{ esxi_cli_mem_default }}'
+                esxi_cli_mem_to: '{{ esxi_cli_mem_max }}'
+
+            - name: update (retry)
+              ansible.builtin.command: >
+                esxcli software profile update
+                -p {{ esxi_update_profile_name }}
+                -d https://hostupdate.vmware.com/software/VUM/PRODUCTION/main/vmw-depot-index.xml
+                --no-hardware-warning
+          always:
+            - name: reset memory
+              include_tasks: fix_cli_mem.yml
+              vars:
+                esxi_cli_mem_from: '{{ esxi_cli_mem_max }}'
+                esxi_cli_mem_to: '{{ esxi_cli_mem_default }}'
+          when:
+            - esxi_software_profile_update.rc != 0
+            - esxi_software_profile_update.stdout is defined
+            - ('MemoryError' in esxi_software_profile_update.stdout)
+
+        - name: fail if another error
+          ansible.builtin.fail:
+            msg: "failed with error: {{ esxi_software_profile_update.stdout | default('not specified') }}"
+          when:
+            - esxi_software_profile_update.rc != 0
+            - esxi_software_profile_update.stdout is undefined or ('MemoryError' not in esxi_software_profile_update.stdout)
+
+    - name: reboot
+      ansible.builtin.reboot:
+
+    - name: check current version
+      ansible.builtin.command: vmware -vl
+      register: check_esxi_version
+
+    - name: Set facts for ESXi version and build number
+      set_fact:
+        esxi_version: "{{ check_esxi_version.stdout_lines[0] | regex_search('ESXi\\s+(\\d+\\.\\d+\\.\\d+)', '\\1') }}"
+        esxi_build: "{{ check_esxi_version.stdout_lines[0] | regex_search('build-(\\d+)', '\\1') }}"
+
+    - name: Display the ESXi version and build number
+      debug:
+        msg: "ESXi Version (updated): {{ esxi_version }}, Build Number: {{ esxi_build }}"
+
+  always:
+    - name: exit maint mode
+      ansible.builtin.command: esxcli system maintenanceMode set --enable false
+      register: exit_maint_mode
+      failed_when:
+        - exit_maint_mode.rc != 0
+        - exit_maint_mode.stdout is defined
+        - ('Maintenance mode is already disabled') not in exit_maint_mode.stdout
+      changed_when:
+        - exit_maint_mode.rc == 0

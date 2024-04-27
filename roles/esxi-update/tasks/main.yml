@@ -14,37 +14,7 @@
     msg: "ESXi Version: {{ esxi_version }}, Build Number: {{ esxi_build }}"
 
 - name: update esxi
-  block:
-    - name: enter maint mode
-      ansible.builtin.command: esxcli system maintenanceMode set --enable true
-
-    - name: update
-      ansible.builtin.command: >
-        esxcli software profile update
-        -p {{ esxi_update_profile_name }}
-        -d https://hostupdate.vmware.com/software/VUM/PRODUCTION/main/vmw-depot-index.xml
-        --no-hardware-warning
-
-    - name: reboot
-      ansible.builtin.reboot:
-
-    - name: check current version
-      ansible.builtin.command: vmware -vl
-      register: check_esxi_version
-
-    - name: Set facts for ESXi version and build number
-      set_fact:
-        esxi_version: "{{ check_esxi_version.stdout_lines[0] | regex_search('ESXi\\s+(\\d+\\.\\d+\\.\\d+)', '\\1') }}"
-        esxi_build: "{{ check_esxi_version.stdout_lines[0] | regex_search('build-(\\d+)', '\\1') }}"
-
-    - name: Display the ESXi version and build number
-      debug:
-        msg: "ESXi Version (updated): {{ esxi_version }}, Build Number: {{ esxi_build }}"
-
-  always:
-    - name: exit maint mode
-      ansible.builtin.command: esxcli system maintenanceMode set --enable false
-
+  include_tasks: update_esxi.yml
   when:
     - esxi_update_profile_name is defined
     - esxi_update_profile_name | length

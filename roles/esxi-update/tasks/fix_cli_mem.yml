@@ -1,0 +1,30 @@
+---
+
+- block:
+    - name: Set VisorFS PristineTardisk to 0
+      ansible.builtin.command: |
+        esxcli system settings advanced set -o /VisorFS/VisorFSPristineTardisk -i 0
+
+    - name: Backup esxcli-software file
+      ansible.builtin.copy:
+        src: /usr/lib/vmware/esxcli-software
+        dest: /usr/lib/vmware/esxcli-software.bak
+        remote_src: true
+
+    - name: Modify memory setting in esxcli-software from {{ esxi_cli_mem_from }} to {{ esxi_cli_mem_to }}
+      ansible.builtin.replace:
+        path: /usr/lib/vmware/esxcli-software
+        regexp: 'mem={{ esxi_cli_mem_from }}'
+        replace: 'mem={{ esxi_cli_mem_to }}'
+
+  rescue:
+    - name: Restore esxcli-software file
+      ansible.builtin.copy:
+        src: /usr/lib/vmware/esxcli-software.bak
+        dest: /usr/lib/vmware/esxcli-software
+        remote_src: true
+
+  always:
+    - name: Set VisorFS PristineTardisk to 1
+      ansible.builtin.command: |
+        esxcli system settings advanced set -o /VisorFS/VisorFSPristineTardisk -i 1

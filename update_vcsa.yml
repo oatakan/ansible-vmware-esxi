@@ -1,0 +1,19 @@
+- name: update vcsa
+  hosts: localhost
+  gather_facts: false
+  vars:
+    vcenter_host: "{{ lookup('env', 'VMWARE_HOST') }}"
+    vcenter_user: "{{ lookup('env', 'VMWARE_USER') }}"
+    vcenter_password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+  tasks:
+    - name: update vCenter Server Appliance
+      vcenter_update_vcsa:
+        hostname: "{{ vcenter_host }}"
+        username: "{{ vcenter_user }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+      register: update_result
+
+    - name: Check the results
+      ansible.builtin.debug:
+        msg: "Results: {{ update_result }}"

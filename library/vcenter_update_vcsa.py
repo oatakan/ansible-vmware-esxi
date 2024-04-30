@@ -103,7 +103,7 @@ def wait_for_install_complete(module, session, vcsa_url, timeout, headers, usern
                 status = response.json()
                 logging.info(f"Checking update status: {status}")
                 if status.get('state') == "UP_TO_DATE":
-                    return True  # Install completed successfully
+                    return True, headers  # Install completed successfully
             elif response.status_code == 401:
                 logging.info("Session expired. Re-authenticating...")
                 token = authenticate_vcsa(module, session, vcsa_url, username, password)
@@ -126,7 +126,7 @@ def wait_for_install_complete(module, session, vcsa_url, timeout, headers, usern
             # Generic exception handler for any other unforeseen exceptions
             logging.info(f"An unexpected error encountered: {str(e)}. Retrying...")
         time.sleep(min(30, remaining_time))
-    return False
+    return False, headers
 
 def setup_logging():
     # Configure logging
@@ -223,7 +223,9 @@ def run_module():
                 headers['Content-Type'] = 'application/json'
                 install_response = session.post(install_url, headers=headers, data=payload)
                 # install_response.raise_for_status()
-                if wait_for_install_complete(module, session, vcsa_url, timeout, headers, username, password, start_time):
+                success, updated_headers = wait_for_install_complete(module, session, vcsa_url, timeout, headers, username, password, start_time)
+                if success:
+                    headers = updated_headers
                     result['changed'] = True
                     result['message'] = 'Update installed successfully.'
                     result['update_details'] = pending_updates[0]

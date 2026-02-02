@@ -79,6 +79,22 @@
     state: directory
   delegate_to: localhost
 
+- name: ensure vSwitch0 security policy to Accept
+  community.vmware.vmware_vswitch:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    esxi_hostname: "{{ ansible_host }}"
+    switch_name: "vSwitch0"
+    validate_certs: false
+    state: present
+    network_policy:
+      promiscuous_mode: true
+      forged_transmits: true
+      mac_changes: true
+  delegate_to: localhost
+  ignore_errors: true
+
 - name: add a new ESXi license
   community.vmware.vcenter_license:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"

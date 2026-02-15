@@ -1,6 +1,6 @@
 ---
 
-- name: ensure datacenter exists
+- name: Ensure datacenter exists
   community.vmware.vmware_datacenter:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
@@ -9,8 +9,8 @@
     datacenter_name: '{{ vcenter_datacenter }}'
     state: present
 
-- name: ensure cluster exists
-  community.vmware.vmware_cluster:
+- name: Ensure cluster exists
+  vmware.vmware.cluster:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
@@ -19,8 +19,8 @@
     cluster_name: '{{ vcenter_cluster }}'
     state: present
 
-- name: ensure drs is enabled on the cluster
-  community.vmware.vmware_cluster_drs:
+- name: Ensure DRS is enabled on the cluster
+  vmware.vmware.cluster_drs:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
@@ -29,7 +29,7 @@
     cluster_name: '{{ vcenter_cluster }}'
     enable: "{{ enable_drs }}"
 
-- name: ensure vsan is enabled on the cluster
+- name: Ensure vSAN is enabled on the cluster
   community.vmware.vmware_cluster_vsan:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
@@ -40,7 +40,7 @@
     enable: "{{ enable_vsan }}"
   when: enable_vsan
 
-- name: ensure resource pools exist
+- name: Ensure resource pools exist
   community.vmware.vmware_resource_pool:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
@@ -52,19 +52,19 @@
     state: present
   loop: "{{ vcenter_resource_pools }}"
 
-- name: ensure folders exist
-  community.vmware.vcenter_folder:
+- name: Ensure folders exist
+  vmware.vmware.folder:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
     validate_certs: false
     datacenter: '{{ vcenter_datacenter }}'
-    folder_name: "{{ item }}"
+    relative_path: "{{ item }}"
     folder_type: vm
     state: present
   loop: "{{ vcenter_vm_folders }}"
 
-- name: add a new vCenter license
+- name: Add a new vCenter license
   community.vmware.vcenter_license:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
@@ -72,5 +72,5 @@
     license: "{{ vcenter_license }}"
     validate_certs: false
     state: present
-  ignore_errors: true
-  when: (vcenter_license|length | default(0)) > 0
+  ignore_errors: true  # noqa: ignore-errors
+  when: (vcenter_license|length | default(0)) > 0  # noqa: yaml[empty-lines]

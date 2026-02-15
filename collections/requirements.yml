@@ -1,3 +1,4 @@
 ---
 collections:
   - community.vmware
+  - vmware.vmware

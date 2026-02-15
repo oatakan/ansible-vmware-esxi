@@ -1,20 +1,20 @@
 ---
 
-- name: create a snapshot
-  community.vmware.vmware_guest_snapshot:
+- name: Create a snapshot
+  vmware.vmware.vm_snapshot:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
     validate_certs: false
     datacenter: '{{ vcenter_datacenter }}'
     folder: /{{ vcenter_datacenter }}/vm
-    name: "{{ item | basename | replace('.ova','') | replace('-ovf','') }}"
+    name: "{{ item | basename | replace('.ova', '') | replace('-ovf', '') }}"
     state: present
     snapshot_name: Linked
     description: Linked
   delegate_to: localhost
 
-- name: convert vm to template
+- name: Convert VM to template
   community.vmware.vmware_guest:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
@@ -22,19 +22,19 @@
     validate_certs: false
     datacenter: '{{ vcenter_datacenter }}'
     cluster: '{{ vcenter_cluster }}'
-    name: "{{ item | basename | replace('.ova','') | replace('-ovf','') }}"
+    name: "{{ item | basename | replace('.ova', '') | replace('-ovf', '') }}"
     is_template: true
     folder: /{{ vcenter_datacenter }}/vm
   delegate_to: localhost
 
-- name: move vm to template folder
+- name: Move VM to template folder
   community.vmware.vmware_guest_move:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
     validate_certs: false
     datacenter: '{{ vcenter_datacenter }}'
-    name: "{{ item | basename | replace('.ova','') | replace('-ovf','') }}"
+    name: "{{ item | basename | replace('.ova', '') | replace('-ovf', '') }}"
     dest_folder: /{{ vcenter_datacenter }}/vm/template
   delegate_to: localhost
-  ignore_errors: true
+  ignore_errors: true  # noqa: ignore-errors

@@ -1,0 +1,38 @@
+# IDEs and editors
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+
+# Ansible local/cache artifacts
+.ansible/
+*.retry
+ansible.log
+
+# Python cache/build artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+env/
+
+# Local environment/secrets
+.env
+.env.*
+*.vault
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+*~

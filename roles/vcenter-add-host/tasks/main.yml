@@ -1,27 +1,35 @@
 ---
 
-#- name: obtain thumbprint
-#  command: openssl x509 -in /etc/vmware/ssl/rui.crt -fingerprint -sha1 -noout
-#  register: esxi_ssl_thumbprint
+# - name: obtain thumbprint
+#   command: openssl x509 -in /etc/vmware/ssl/rui.crt -fingerprint -sha1 -noout
+#   register: esxi_ssl_thumbprint
 
-- name: add ESXi Host to vCenter under a specific folder
-  community.vmware.vmware_host:
+- name: Add ESXi host to vCenter under a specific folder
+  vmware.vmware.esxi_host:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
     validate_certs: false
     datacenter_name: "{{ vcenter_datacenter }}"
     cluster_name: "{{ vcenter_cluster }}"
-    esxi_hostname: "{{ ansible_host }}"
+    esxi_host_name: "{{ ansible_host }}"
     esxi_username: root
     esxi_password: "{{ ansible_password | default(ansible_ssh_password) }}"
-    #esxi_ssl_thumbprint: "{{ esxi_ssl_thumbprint.stdout | replace('SHA1 Fingerprint=','') }}"
-    fetch_ssl_thumbprint: true
     state: present
-    add_connected: true
   delegate_to: localhost
 
-- name: wait for vca to show up in vcenter inventory
+- name: Ensure ESXi host is connected in vCenter
+  vmware.vmware.esxi_connection:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: false
+    datacenter_name: "{{ vcenter_datacenter }}"
+    esxi_host_name: "{{ ansible_host }}"
+    state: connected
+  delegate_to: localhost
+
+- name: Wait for VCSA to show up in vCenter inventory
   community.vmware.vmware_vm_info:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
@@ -33,9 +41,9 @@
   until: (vm_facts.virtual_machines | default([]) | selectattr('guest_name', 'equalto', vcenter_appliance_name) | list) | length > 0
   retries: 10
   delay: 3
-  ignore_errors: true
+  ignore_errors: true  # noqa: ignore-errors
 
-- name: move vcenter vm to infra resource pool
+- name: Move vCenter VM to infra resource pool
   community.vmware.vmware_guest:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
@@ -52,7 +60,7 @@
   delay: 5
   ignore_errors: true
 
-- name: auto-start vcenter vm
+- name: Auto-start vCenter VM
   community.vmware.vmware_host_auto_start:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
@@ -67,7 +75,7 @@
       wait_for_heartbeat: true
   delegate_to: localhost
 
-- name: ensure iso directory exists on the datastore
+- name: Ensure ISO directory exists on the datastore
   community.vmware.vsphere_file:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
@@ -79,7 +87,7 @@
     state: directory
   delegate_to: localhost
 
-- name: ensure vSwitch0 security policy to Accept
+- name: Ensure vSwitch0 security policy to accept  # noqa: ignore-errors
   community.vmware.vmware_vswitch:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
@@ -95,7 +103,7 @@
   delegate_to: localhost
   ignore_errors: true
 
-- name: add a new ESXi license
+- name: Add a new ESXi license
   community.vmware.vcenter_license:
     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
     username: "{{ lookup('env', 'VMWARE_USER') }}"
@@ -105,5 +113,5 @@
     validate_certs: false
     state: present
   delegate_to: localhost
-  ignore_errors: true
-  when: (esxi_license|length | default(0)) > 0
+  ignore_errors: true  # noqa: ignore-errors
+  when: (esxi_license|length | default(0)) > 0  # noqa: yaml[empty-lines]

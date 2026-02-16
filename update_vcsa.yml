@@ -1,4 +1,5 @@
-- name: update vcsa
+---
+- name: Update vcsa
   hosts: localhost
   gather_facts: false
   vars:
@@ -6,7 +7,7 @@
     vcenter_user: "{{ lookup('env', 'VMWARE_USER') }}"
     vcenter_password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
   tasks:
-    - name: update vCenter Server Appliance
+    - name: Update vCenter Server Appliance
       vcenter_update_vcsa:
         hostname: "{{ vcenter_host }}"
         username: "{{ vcenter_user }}"

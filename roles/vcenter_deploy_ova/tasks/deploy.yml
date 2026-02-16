@@ -1,0 +1,41 @@
+---
+# - name: deploy ovas
+#   community.vmware.vmware_deploy_ovf:
+#     hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+#     username: "{{ lookup('env', 'VMWARE_USER') }}"
+#     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+#     validate_certs: false
+#     datacenter: '{{ vcenter_datacenter }}'
+#     ovf: "{{ network_mount_dir }}/{{ ova_path }}/{{ item }}"
+#     name: "{{ item | replace('.ova', '') | replace('-ovf', '') }}"
+# #   properties:
+# #     password: "defaultPass"
+# #     ntpserver: "10.1.1.11,10.1.1.12"
+# #     vami.ip0.vSphere_Replication_Appliance: "10.2.1.20"
+#     disk_provisioning: "{{ disk_mode }}"
+#     networks:
+#       "nat": '{{ target_esx_portgroup }}'
+#     cluster: '{{ vcenter_cluster }}'
+#     datastore: '{{ target_esx_datastore }}'
+#     inject_ovf_env: true
+#     power_on: true
+
+- name: Deploy ovas
+  ansible.builtin.command: >-
+    {{ vcenter_deploy_ova_ovftool }}
+    --acceptAllEulas
+    --noSSLVerify
+    --X:injectOvfEnv
+    --allowExtraConfig
+    --X:connectionFileTransferRetryCount=3
+    --sourceType=OVA
+    --net:"nat"='{{ vcenter_deploy_ova_target_esx_portgroup }}'
+    --datastore='{{ vcenter_deploy_ova_target_esx_datastore }}'
+    --diskMode='{{ vcenter_deploy_ova_disk_mode }}'
+    --name="{{ item | replace('.ova', '') | replace('-ovf', '') }}"
+    '{{ vcenter_deploy_ova_network_mount_dir }}/{{ vcenter_deploy_ova_path }}/{{ item }}'
+    vi://"{{ deploy_esxi_user }}":"{{ deploy_esxi_password }}"@{{ ansible_host }}/
+  changed_when: true
+  vars:
+    deploy_esxi_user: "{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}"
+    deploy_esxi_password: "{{ ansible_password | default(ansible_ssh_password) | urlencode }}"

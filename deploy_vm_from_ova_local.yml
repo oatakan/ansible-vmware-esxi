@@ -1,4 +1,5 @@
-- name: deploy vm from ova
+---
+- name: Deploy vm from ova
   hosts: all
   gather_facts: false
   become: false
@@ -17,25 +18,25 @@
       systemctl enable sshd
       systemctl start sshd
   tasks:
-    - name: check file
+    - name: Check file
       ansible.builtin.stat:
         path: "{{ ova_file }}"
         get_checksum: false
       delegate_to: localhost
       register: check_ova_file
 
-    - name: fail if the file doesn't exist
-      fail:
+    - name: Fail if the file doesn't exist
+      ansible.builtin.fail:
         msg: "{{ ova_file }} doesn't exist"
       when: not check_ova_file.stat.exists
 
-    - name: deploy ova
+    - name: Deploy ova
       community.vmware.vmware_deploy_ovf:
         hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
         username: "{{ lookup('env', 'VMWARE_USER') }}"
         password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
         validate_certs: false
-        datacenter: '{{ vcenter_datacenter }}'
+        datacenter: "{{ vcenter_datacenter }}"
         ovf: "{{ ova_file }}"
         name: "{{ vm_name }}"
         properties:
@@ -49,15 +50,15 @@
           network.searchpath: ""
         disk_provisioning: "{{ disk_mode }}"
         networks:
-          "bridged": '{{ target_esx_portgroup }}'
-        cluster: '{{ vcenter_cluster }}'
-        datastore: '{{ target_esx_datastore }}'
+          "bridged": "{{ target_esx_portgroup }}"
+        cluster: "{{ vcenter_cluster }}"
+        datastore: "{{ target_esx_datastore }}"
         inject_ovf_env: true
         power_on: true
       delegate_to: localhost
 
     # smoke test that nginx is serving requests
-    - name: proper response from nginx is received
+    - name: Proper response from nginx is received
       ansible.builtin.uri:
         url: http://192.168.1.53
         return_content: true
@@ -68,7 +69,7 @@
       ignore_errors: true
       delegate_to: localhost
 
-    - name: output url
-      debug:
+    - name: Output url
+      ansible.builtin.debug:
         msg: "application is available at http://192.168.1.53"
       when: response is success

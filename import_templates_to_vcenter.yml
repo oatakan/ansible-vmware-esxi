@@ -1,4 +1,5 @@
-- name: import templates to vcenter
+---
+- name: Import templates to vcenter
   hosts: all
   gather_facts: false
   become: false
@@ -8,13 +9,13 @@
     ova_files:
       - windows-10-1903-ovf.ova
       - rhel76-x64-bigdisk_v1.ova
-      #- windows-2016-standard-core-ovf.ova
+      # - windows-2016-standard-core-ovf.ova
       - centos75-x64-bigdisk_v4.ova
       - centos76-x64-bigdisk_v1.ova
-      #- windows-2016-ovf.ova
-      #- windows-2016-datacenter-ovf.ova
+      # - windows-2016-ovf.ova
+      # - windows-2016-datacenter-ovf.ova
       - windows-2019-ovf.ova
       - windows-2019-standard-core-ovf.ova
   roles:
-    - role: vcenter-deploy-ova-template
+    - role: vcenter_deploy_ova_template
       run_once: true

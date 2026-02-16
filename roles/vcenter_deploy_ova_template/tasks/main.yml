@@ -1,0 +1,15 @@
+---
+- name: Normalize vcenter_deploy_ova_template variables
+  ansible.builtin.set_fact:
+    vcenter_deploy_ova_template_files: "{{ ova_files | default(vcenter_deploy_ova_template_files) }}"
+    vcenter_deploy_ova_template_datacenter: "{{ vcenter_datacenter | default(vcenter_deploy_ova_template_datacenter) }}"
+    vcenter_deploy_ova_template_cluster: "{{ vcenter_cluster | default(vcenter_deploy_ova_template_cluster) }}"
+
+- name: Include OVA deployment role
+  ansible.builtin.include_role:
+    name: vcenter_deploy_ova
+
+- name: Convert deployed OVA to template
+  ansible.builtin.include_tasks: make_template.yml
+  loop: "{{ vcenter_deploy_ova_template_files }}"
+  when: vcenter_deploy_ova_template_files is defined

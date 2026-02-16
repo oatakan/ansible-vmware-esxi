@@ -1,0 +1,6 @@
+---
+
+vcenter_deploy_ova_http_link_files: "{{ vcenter_deploy_ova_files | select('search', '^https?://*') | list }}"
+vcenter_deploy_ova_non_http_link_files: "{{ vcenter_deploy_ova_files | difference(vcenter_deploy_ova_files | select('search', '^https?://*')) | list }}"
+
+vcenter_deploy_ova_file_parsed: "{{ vcenter_deploy_ova_http_link_files[0] | urlsplit }}"

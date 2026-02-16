@@ -1,3 +1,4 @@
+---
 - name: Add ESXi host to vCenter
   hosts: all
   gather_facts: false
@@ -14,11 +15,11 @@
         password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
         datacenter_name: "{{ datacenter }}"
         folder: "{{ folder }}"
-        esxi_host_name: '{{ ansible_host }}'
+        esxi_host_name: "{{ ansible_host }}"
         esxi_username: root
-        esxi_password: '{{ ansible_password }}'
+        esxi_password: "{{ ansible_password }}"
         state: present
-      ignore_errors: true  # noqa: ignore-errors
+      ignore_errors: true # noqa: ignore-errors
       delegate_to: localhost
 
     - name: Ensure ESXi host is connected in vCenter
@@ -27,9 +28,9 @@
         username: "{{ lookup('env', 'VMWARE_USER') }}"
         password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
         datacenter_name: "{{ datacenter }}"
-        esxi_host_name: '{{ ansible_host }}'
+        esxi_host_name: "{{ ansible_host }}"
         state: connected
-      ignore_errors: true  # noqa: ignore-errors
+      ignore_errors: true # noqa: ignore-errors
       delegate_to: localhost
 
     - name: Mount NFS datastore to ESXi
@@ -37,25 +38,25 @@
         hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
         username: "{{ lookup('env', 'VMWARE_USER') }}"
         password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-        datacenter_name: '{{ datacenter }}'
-        datastore_name: '{{ item.name }}'
-        datastore_type: '{{ item.type }}'
-        nfs_server: '{{ item.server }}'
-        nfs_path: '{{ item.path }}'
+        datacenter_name: "{{ datacenter }}"
+        datastore_name: "{{ item.name }}"
+        datastore_type: "{{ item.type }}"
+        nfs_server: "{{ item.server }}"
+        nfs_path: "{{ item.path }}"
         nfs_ro: true
-        esxi_hostname: '{{ ansible_host }}'
+        esxi_hostname: "{{ ansible_host }}"
         state: present
       delegate_to: localhost
       loop:
-        - { 'name': 'NasDS_vol01', 'server': '192.168.1.103', 'path': '/mnt/vault/work/install', 'type': 'nfs'}
+        - { "name": "NasDS_vol01", "server": "192.168.1.103", "path": "/mnt/vault/work/install", "type": "nfs" }
 
     - name: Exit maintenance mode
       vmware.vmware.esxi_maintenance_mode:
         hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
         username: "{{ lookup('env', 'VMWARE_USER') }}"
         password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-        esxi_host_name: '{{ ansible_host }}'
+        esxi_host_name: "{{ ansible_host }}"
         timeout: 3600
         enable_maintenance_mode: false
-      ignore_errors: true  # noqa: ignore-errors
+      ignore_errors: true # noqa: ignore-errors
       delegate_to: localhost

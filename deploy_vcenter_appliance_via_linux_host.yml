@@ -1,4 +1,5 @@
-- name: deploy vcenter appliance
+---
+- name: Deploy vcenter appliance
   hosts: all
   gather_facts: false
   become: false
@@ -7,21 +8,21 @@
     vcenter_netmask: 255.255.255.0
     vcenter_gateway: 192.168.1.254
     vcenter_net_prefix: 24
-    network_mount_dir: '{{ playbook_dir }}/mnt/net'
-    iso_mount_dir: '{{ playbook_dir }}/mnt/iso'
+    network_mount_dir: "{{ playbook_dir }}/mnt/net"
+    iso_mount_dir: "{{ playbook_dir }}/mnt/iso"
 
   pre_tasks:
-    - name: ensure the mount directory exists
+    - name: Ensure the mount directory exists
       ansible.builtin.file:
-        path: '{{ network_mount_dir }}'
+        path: "{{ network_mount_dir }}"
         state: directory
-        mode: 0755
+        mode: "0755"
       delegate_to: localhost
 
-    - name: mount network share
+    - name: Mount network share
       ansible.posix.mount:
-        path: '{{ network_mount_dir }}'
-        src: '{{ network_share }}'
+        path: "{{ network_mount_dir }}"
+        src: "{{ network_share }}"
         fstype: nfs
         opts: nolock
         state: mounted
@@ -29,19 +30,19 @@
       become: true
 
   roles:
-    - role: vcsa-deploy-via-linux-host
+    - role: vcsa_deploy_via_linux_host
       delegate_to: localhost
 
   post_tasks:
-    - name: unmount network share
+    - name: Unmount network share
       ansible.posix.mount:
-        path: '{{ network_mount_dir }}'
+        path: "{{ network_mount_dir }}"
         state: unmounted
       delegate_to: localhost
       become: true
 
-    - name: ensure the mount directory doesn't exist
+    - name: Ensure the mount directory doesn't exist
       ansible.builtin.file:
-        path: '{{ network_mount_dir }}'
+        path: "{{ network_mount_dir }}"
         state: absent
       delegate_to: localhost

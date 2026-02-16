@@ -1,0 +1,22 @@
+---
+- name: Create a new firewall rule
+  ansible.builtin.template:
+    src: ova-http-upload.yml.j2
+    dest: /etc/vmware/firewall/ova-http-upload.yml
+    mode: "0644"
+  register: vcenter_deploy_ova_set_ova_http_upload_rule
+  notify: Refresh ESXi firewall
+
+- name: Check to see if ovftool_installer_zip_file is defined
+  ansible.builtin.fail:
+    msg: "you need to specify the download location with ovftool_installer_zip_file variable"
+  when: ovftool_installer_zip_file is undefined
+
+- name: Install ovftool
+  ansible.builtin.unarchive:
+    src: "{{ ovftool_installer_zip_file }}"
+    dest: /tmp
+    creates: /tmp/ovftool/ovftool
+    remote_src: true
+  delegate_to: localhost
+  connection: local

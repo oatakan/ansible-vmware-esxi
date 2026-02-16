@@ -1,6 +1,7 @@
-- name: update esxi
+---
+- name: Update esxi
   hosts: all
   gather_facts: true
   become: false
   roles:
-    - esxi-update
+    - esxi_update

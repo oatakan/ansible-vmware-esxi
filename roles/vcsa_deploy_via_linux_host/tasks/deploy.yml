@@ -1,0 +1,46 @@
+---
+- name: Find ova file
+  ansible.builtin.find:
+    paths: "{{ vcsa_deploy_via_linux_host_iso_mount_dir }}/vcsa"
+    patterns: "*.ova"
+  register: vcsa_deploy_via_linux_host_ova_file
+
+- name: Deploy appliance
+  community.vmware.vmware_deploy_ovf:
+    hostname: "{{ ansible_hostname }}"
+    username: "{{ ansible_user | default(ansible_ssh_user) | default('root') }}"
+    password: "{{ ansible_password | default(ansible_ssh_password) }}"
+    ovf: "{{ vcsa_deploy_via_linux_host_ova_file.files[0] }}"
+    wait_for_ip_address: true
+    validate_certs: false
+    name: "{{ vcsa_deploy_via_linux_host_vcenter_appliance_name }}"
+    networks: '{"Network 1": "{{ vcsa_deploy_via_linux_host_target_esx_portgroup }}"}'
+    datastore: "{{ vcsa_deploy_via_linux_host_target_esx_datastore }}"
+    disk_provisioning: "{{ vcsa_deploy_via_linux_host_disk_mode }}"
+    deployment_option: "{{ vcsa_deploy_via_linux_host_vcenter_appliance_size }}"
+    properties:
+      guestinfo.cis.appliance.root.shell: /bin/bash
+      guestinfo.cis.deployment.autoconfig: true
+      guestinfo.cis.silentinstall: false
+      guestinfo.cis.vmdir.domain-name: "{{ vcsa_deploy_via_linux_host_sso_domain_name }}"
+      guestinfo.cis.vmdir.site-name: "{{ vcsa_deploy_via_linux_host_sso_site_name }}"
+      guestinfo.cis.vmdir.username: "{{ vcsa_deploy_via_linux_host_vcenter_username }}"
+      guestinfo.cis.vmdir.password: "{{ vcsa_deploy_via_linux_host_sso_password }}"
+      guestinfo.cis.appliance.net.addr.family: "{{ vcsa_deploy_via_linux_host_net_addr_family }}"
+      guestinfo.cis.appliance.root.passwd: "{{ vcsa_deploy_via_linux_host_vcenter_password }}"
+      guestinfo.cis.appliance.ssh.enabled: "{{ vcsa_deploy_via_linux_host_ssh_enable }}"
+      guestinfo.cis.vmdir.first-instance: true
+      guestinfo.cis.ceip_enabled: true
+      guestinfo.cis.appliance.ntp.servers: '{% for item in vcsa_deploy_via_linux_host_ntp_servers %}{{ item }}{{ "," if not loop.last else "" }}{% endfor %}'
+      guestinfo.cis.appliance.net.pnid: "{{ vcsa_deploy_via_linux_host_vcenter_fqdn }}"
+      guestinfo.cis.appliance.net.mode: "{{ vcsa_deploy_via_linux_host_network_ip_scheme }}"
+      guestinfo.cis.appliance.net.addr: "{{ vcsa_deploy_via_linux_host_vcenter_ip_address | ansible.utils.ipaddr }}"
+      guestinfo.cis.appliance.net.prefix: "{{ vcsa_deploy_via_linux_host_vcenter_net_prefix }}"
+      guestinfo.cis.appliance.net.gateway: "{{ vcsa_deploy_via_linux_host_vcenter_gateway | ansible.utils.ipaddr }}"
+      guestinfo.cis.appliance.net.dns.servers: >-
+        {% for item in vcsa_deploy_via_linux_host_dns_servers %}{{ item }}{{ "," if not loop.last else "" }}{% endfor %}
+  when:
+    - vcsa_deploy_via_linux_host_ova_file is success
+    - vcsa_deploy_via_linux_host_ova_file.matched is defined
+    - vcsa_deploy_via_linux_host_ova_file.matched | int > 0
+    - vcsa_deploy_via_linux_host_ova_file.files is defined

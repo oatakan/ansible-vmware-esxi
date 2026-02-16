@@ -1,0 +1,3 @@
+---
+
+vcsa_deploy_vcenter_ova_file_parsed: "{{ vcsa_deploy_vcenter_ova_file | urlsplit }}"

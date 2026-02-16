@@ -1,0 +1,38 @@
+---
+
+vcsa_deploy_via_linux_host_sso_password: "{{ lookup('env', 'VMWARE_PASSWORD') | default('') }}"
+vcsa_deploy_via_linux_host_sso_site_name: Default-Site
+vcsa_deploy_via_linux_host_sso_domain_name: home.ad
+
+vcsa_deploy_via_linux_host_network_mount_dir: /mnt/net
+vcsa_deploy_via_linux_host_vcsa_iso: iso/VMware-VCSA-all-7.0.1-17491101.iso
+
+vcsa_deploy_via_linux_host_iso_mount_dir: /mnt/iso
+
+vcsa_deploy_via_linux_host_network_ip_scheme: static
+vcsa_deploy_via_linux_host_disk_mode: thin
+
+vcsa_deploy_via_linux_host_vcenter_appliance_name: vcenter
+vcsa_deploy_via_linux_host_vcenter_appliance_size: small
+
+vcsa_deploy_via_linux_host_target_esx_datastore: datastore1
+vcsa_deploy_via_linux_host_target_esx_portgroup: Management
+
+vcsa_deploy_via_linux_host_ssh_enable: true
+vcsa_deploy_via_linux_host_time_tools_sync: false
+vcsa_deploy_via_linux_host_net_addr_family: ipv4
+
+vcsa_deploy_via_linux_host_vcenter_ip_address: "{{ lookup('env', 'VMWARE_HOST') | default('') }}"
+vcsa_deploy_via_linux_host_vcenter_username: "{{ lookup('env', 'VMWARE_USER') | default('') }}"
+vcsa_deploy_via_linux_host_vcenter_password: "{{ lookup('env', 'VMWARE_PASSWORD') | default('') }}"
+vcsa_deploy_via_linux_host_vcenter_fqdn: >-
+  vcenter{{ vcsa_deploy_via_linux_host_vcenter_ip_address.split('.')[-1]
+  }}.{{ vcsa_deploy_via_linux_host_sso_domain_name }}
+vcsa_deploy_via_linux_host_vcenter_netmask: 255.255.255.0
+vcsa_deploy_via_linux_host_vcenter_gateway: 192.168.1.254
+vcsa_deploy_via_linux_host_vcenter_net_prefix: 24
+
+vcsa_deploy_via_linux_host_dns_servers:
+  - 8.8.4.4
+vcsa_deploy_via_linux_host_ntp_servers:
+  - pool.ntp.org

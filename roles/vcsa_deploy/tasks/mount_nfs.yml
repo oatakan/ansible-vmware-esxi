@@ -1,0 +1,7 @@
+---
+- name: Mount nfs share
+  ansible.builtin.command: >-
+    esxcli storage nfs add --host={{ vcsa_deploy_network_host }}
+    --share={{ vcsa_deploy_network_path }} --volume-name=nfs_vol01 --readonly
+  changed_when: false
+  failed_when: false

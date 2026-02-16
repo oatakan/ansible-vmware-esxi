@@ -1,0 +1,5 @@
+---
+
+vcenter_deploy_ova_template_files: []
+vcenter_deploy_ova_template_datacenter: cloud
+vcenter_deploy_ova_template_cluster: mylab

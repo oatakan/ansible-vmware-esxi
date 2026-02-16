@@ -1,0 +1,25 @@
+---
+- name: Normalize esxi_update variables
+  ansible.builtin.set_fact:
+    esxi_update_cli_mem_default: "{{ esxi_cli_mem_default | default(esxi_update_cli_mem_default) }}"
+    esxi_update_cli_mem_max: "{{ esxi_cli_mem_max | default(esxi_update_cli_mem_max) }}"
+
+- name: Check current version
+  ansible.builtin.command: vmware -vl
+  register: esxi_update_check_esxi_version
+  changed_when: false
+
+- name: Set facts for ESXi version and build number
+  ansible.builtin.set_fact:
+    esxi_update_version: "{{ esxi_update_check_esxi_version.stdout_lines[0] | regex_search('ESXi\\s+(\\d+\\.\\d+\\.\\d+)', '\\1') }}"
+    esxi_update_build: "{{ esxi_update_check_esxi_version.stdout_lines[0] | regex_search('build-(\\d+)', '\\1') }}"
+
+- name: Display the ESXi version and build number
+  ansible.builtin.debug:
+    msg: "ESXi Version: {{ esxi_update_version }}, Build Number: {{ esxi_update_build }}"
+
+- name: Update esxi
+  ansible.builtin.include_tasks: update_esxi.yml
+  when:
+    - esxi_update_profile_name is defined
+    - esxi_update_profile_name | length

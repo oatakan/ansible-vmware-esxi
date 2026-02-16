@@ -1,0 +1,4 @@
+---
+- name: Refresh ESXi firewall
+  ansible.builtin.command: esxcli network firewall refresh
+  changed_when: false

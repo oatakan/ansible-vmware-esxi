@@ -1,0 +1,119 @@
+---
+- name: Normalize vcenter_add_host variables
+  ansible.builtin.set_fact:
+    vcenter_add_host_datacenter: "{{ vcenter_datacenter | default(vcenter_add_host_datacenter) }}"
+    vcenter_add_host_cluster: "{{ vcenter_cluster | default(vcenter_add_host_cluster) }}"
+    vcenter_add_host_appliance_name: "{{ vcenter_appliance_name | default(vcenter_add_host_appliance_name) }}"
+    vcenter_add_host_target_esx_datastore: "{{ target_esx_datastore | default(vcenter_add_host_target_esx_datastore) }}"
+    vcenter_add_host_configure_vswitch: "{{ configure_vswitch | default(vcenter_add_host_configure_vswitch) }}"
+    vcenter_add_host_apply_license: "{{ apply_esxi_license | default(vcenter_add_host_apply_license) }}"
+    vcenter_add_host_task_async_timeout: "{{ task_async_timeout | default(vcenter_add_host_task_async_timeout) }}"
+    vcenter_add_host_task_poll_interval: "{{ task_poll_interval | default(vcenter_add_host_task_poll_interval) }}"
+
+# - name: obtain thumbprint
+#   command: openssl x509 -in /etc/vmware/ssl/rui.crt -fingerprint -sha1 -noout
+#   register: esxi_ssl_thumbprint
+
+- name: Add ESXi host to vCenter under a specific folder
+  vmware.vmware.esxi_host:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: false
+    datacenter_name: "{{ vcenter_add_host_datacenter }}"
+    cluster_name: "{{ vcenter_add_host_cluster }}"
+    esxi_host_name: "{{ ansible_host }}"
+    esxi_username: root
+    esxi_password: "{{ ansible_password | default(ansible_ssh_password) }}"
+    state: present
+  delegate_to: localhost
+
+- name: Ensure ESXi host is connected in vCenter
+  vmware.vmware.esxi_connection:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: false
+    datacenter_name: "{{ vcenter_add_host_datacenter }}"
+    esxi_host_name: "{{ ansible_host }}"
+    state: connected
+  delegate_to: localhost
+
+- name: Wait for VCSA to show up in vCenter inventory
+  community.vmware.vmware_vm_info:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: false
+    vm_type: vm
+  delegate_to: localhost
+  register: vcenter_add_host_vm_facts
+  until: (vcenter_add_host_vm_facts.virtual_machines | default([]) | selectattr('guest_name', 'equalto', vcenter_add_host_appliance_name) | list) | length > 0
+  retries: 10
+  delay: 3
+  ignore_errors: true # noqa: ignore-errors
+
+- name: Move vCenter VM to infra resource pool
+  community.vmware.vmware_guest:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: false
+    datacenter: "{{ vcenter_add_host_datacenter }}"
+    cluster: "{{ vcenter_add_host_cluster }}"
+    name: "{{ vcenter_add_host_appliance_name }}"
+    resource_pool: infra
+  delegate_to: localhost
+  register: vcenter_add_host_move_vcenter_vm
+  until: vcenter_add_host_move_vcenter_vm is success
+  retries: 30
+  delay: 5
+  ignore_errors: true
+
+- name: Auto-start vCenter VM
+  community.vmware.vmware_host_auto_start:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    esxi_hostname: "{{ ansible_host }}"
+    name: "{{ vcenter_add_host_appliance_name }}"
+    power_info:
+      start_action: powerOn
+      start_delay: 10
+      start_order: 1
+      stop_action: powerOff
+      wait_for_heartbeat: true
+  delegate_to: localhost
+
+- name: Ensure ISO directory exists on the datastore
+  community.vmware.vsphere_file:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: false
+    datacenter: "{{ vcenter_add_host_datacenter }}"
+    datastore: "{{ vcenter_add_host_target_esx_datastore }}"
+    path: iso
+    state: directory
+  delegate_to: localhost
+
+- name: Configure vSwitch0 security policy
+  ansible.builtin.include_tasks: configure_vswitch_policy.yml
+  when: vcenter_add_host_configure_vswitch | bool
+
+- name: Add a new ESXi license
+  community.vmware.vcenter_license:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    license: "{{ esxi_license }}"
+    esxi_hostname: "{{ ansible_host }}"
+    validate_certs: false
+    state: present
+  async: "{{ vcenter_add_host_task_async_timeout | int }}"
+  poll: "{{ vcenter_add_host_task_poll_interval | int }}"
+  delegate_to: localhost
+  ignore_errors: true # noqa: ignore-errors
+  when:
+    - vcenter_add_host_apply_license | bool
+    - (esxi_license | default('') | length) > 0

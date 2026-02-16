@@ -10,14 +10,14 @@ Ansible playbooks and roles for managing VMware ESXi and vCenter environments, i
 
 ## Repository Layout
 
-- `add_esxi_host_to_vcenter.yml` - add an ESXi host using the `vcenter-add-host` role
-- `configure_vcenter_appliance.yml` - configure vCenter using the `vcenter-configure` role
+- `add_esxi_host_to_vcenter.yml` - add an ESXi host using the `vcenter_add_host` role
+- `configure_vcenter_appliance.yml` - configure vCenter using the `vcenter_configure` role
 - `deploy_vcenter_appliance.yml` - deploy VCSA from OVA/ISO via datastore path
 - `deploy_vcenter_appliance_via_linux_host.yml` - deploy VCSA from a Linux host with mounted NFS share
 - `deploy_vm_from_ova.yml` - deploy OVA to ESXi using `ovftool`
 - `deploy_vm_from_ova_local.yml` - deploy OVA from local file using Ansible module
 - `import_templates_to_vcenter.yml` - import OVA templates to vCenter
-- `update_esxi.yml` - update ESXi hosts using the `esxi-update` role
+- `update_esxi.yml` - update ESXi hosts using the `esxi_update` role
 - `update_vcsa.yml` - update vCenter appliance via custom module in `library/vcenter_update_vcsa.py`
 
 Main roles are under `roles/` and collection dependencies are defined in `collections/requirements.yml`.
@@ -108,19 +108,19 @@ ansible-playbook -i inventory.ini update_vcsa.yml
 
 Common variables are defined in each role’s `defaults/main.yml`.
 
-- `roles/vcenter-add-host/defaults/main.yml`
+- `roles/vcenter_add_host/defaults/main.yml`
 	- `vcenter_datacenter`, `vcenter_cluster`, `target_esx_datastore`
-- `roles/vcenter-configure/defaults/main.yml`
+- `roles/vcenter_configure/defaults/main.yml`
 	- `vcenter_datacenter`, `vcenter_cluster`, `enable_drs`, `enable_vsan`, `vcenter_resource_pools`, `vcenter_vm_folders`, `vcenter_license`
-- `roles/vcsa-deploy/defaults/main.yml`
+- `roles/vcsa_deploy/defaults/main.yml`
 	- `vcsa_iso`, `network_host`, `network_path`, `vcenter_appliance_name`, networking values
-- `roles/vcsa-deploy-via-linux-host/defaults/main.yml`
+- `roles/vcsa_deploy_via_linux_host/defaults/main.yml`
 	- `network_mount_dir`, `vcsa_iso`, `vcenter_appliance_name`, networking values
-- `roles/vcenter-deploy-ova/defaults/main.yml`
+- `roles/vcenter_deploy_ova/defaults/main.yml`
 	- `ova_files`, `network_mount_dir`, `ovftool`, `target_esx_datastore`, `target_esx_portgroup`
-- `roles/vcenter-deploy-ova-template/defaults/main.yml`
+- `roles/vcenter_deploy_ova_template/defaults/main.yml`
 	- `ova_files`, `vcenter_datacenter`, `vcenter_cluster`
-- `roles/esxi-update/defaults/main.yml`
+- `roles/esxi_update/defaults/main.yml`
 	- `esxi_cli_mem_default`, `esxi_cli_mem_max`
 
 Prefer overriding values in inventory/group vars or with `-e` as needed.

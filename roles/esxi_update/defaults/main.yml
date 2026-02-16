@@ -1,0 +1,4 @@
+---
+
+esxi_update_cli_mem_default: 300
+esxi_update_cli_mem_max: 500

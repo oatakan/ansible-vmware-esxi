@@ -1,3 +1,4 @@
+---
 - name: Add ESXi host to vCenter
   hosts: all
   gather_facts: false
@@ -6,4 +7,4 @@
     vcenter_datacenter: cloud
 
   roles:
-    - vcenter-add-host
+    - vcenter_add_host

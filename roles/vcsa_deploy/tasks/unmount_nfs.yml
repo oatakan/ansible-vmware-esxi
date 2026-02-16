@@ -1,0 +1,5 @@
+---
+- name: Unmount nfs share
+  ansible.builtin.command: esxcli storage nfs remove --volume-name=nfs_vol01
+  changed_when: false
+  failed_when: false

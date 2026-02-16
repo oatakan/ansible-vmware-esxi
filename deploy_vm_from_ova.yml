@@ -1,4 +1,5 @@
-- name: deploy vm from ova
+---
+- name: Deploy vm from ova
   hosts: all
   gather_facts: false
   become: false
@@ -14,7 +15,7 @@
     target_esx_datastore: datastore1
     target_esx_portgroup: mgmt
     ova_file: bitnami-nginx-1.18.0-5-r03-linux-centos-7-x86_64-nami.ova
-    ovftool: '{{ network_mount_dir }}/images/ovftool/lin64/ovftool'
+    ovftool: "{{ network_mount_dir }}/images/ovftool/lin64/ovftool"
     vm_name: nginx-from-ova
     user_data: |
       #!/bin/bash
@@ -23,22 +24,23 @@
       systemctl enable sshd
       systemctl start sshd
   tasks:
-    - block:
-        - name: mount NFS datastore
+    - name: Mount datastore, deploy OVA, and unmount datastore
+      block:
+        - name: Mount NFS datastore
           community.vmware.vmware_host_datastore:
             hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
             username: "{{ lookup('env', 'VMWARE_USER') }}"
             password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-            datastore_name: '{{ datastore_name }}'
+            datastore_name: "{{ datastore_name }}"
             datastore_type: nfs
-            nfs_server: '{{ network_host }}'
-            nfs_path: '{{ network_path }}'
+            nfs_server: "{{ network_host }}"
+            nfs_path: "{{ network_path }}"
             nfs_ro: true
-            esxi_hostname: '{{ ansible_host }}'
+            esxi_hostname: "{{ ansible_host }}"
             state: present
           delegate_to: localhost
 
-        - name: deploy ova
+        - name: Deploy ova
           ansible.builtin.command: >
             {{ ovftool }}
             --acceptAllEulas
@@ -60,21 +62,24 @@
             --prop:network.domain="home.ad"
             --prop:network.dns="8.8.8.8"
             '{{ network_mount_dir }}/{{ ova_path }}/{{ ova_file }}'
-            vi://"{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}":"{{ ansible_password | default(ansible_ssh_password) | urlencode }}"@{{ ansible_host }}/
+            vi://"{{ deploy_esxi_user }}":"{{ deploy_esxi_password }}"@{{ ansible_host }}/
           register: deploy_ova
           changed_when: ('Duplicate name' not in deploy_ova.stdout)
           failed_when:
             - deploy_ova.rc == '1'
             - ('Duplicate name' not in deploy_ova.stdout)
+          vars:
+            deploy_esxi_user: "{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}"
+            deploy_esxi_password: "{{ ansible_password | default(ansible_ssh_password) | urlencode }}"
 
       always:
-        - name: unmount NFS datastore
+        - name: Unmount NFS datastore
           community.vmware.vmware_host_datastore:
             hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
             username: "{{ lookup('env', 'VMWARE_USER') }}"
             password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
-            datastore_name: '{{ datastore_name }}'
-            esxi_hostname: '{{ ansible_host }}'
+            datastore_name: "{{ datastore_name }}"
+            esxi_hostname: "{{ ansible_host }}"
             state: absent
           delegate_to: localhost
           register: unmount_datastore
@@ -83,7 +88,7 @@
           retries: 10
 
     # smoke test that nginx is serving requests
-    - name: proper response from nginx is received
+    - name: Proper response from nginx is received
       ansible.builtin.uri:
         url: http://192.168.1.53
         return_content: true
@@ -94,7 +99,7 @@
       ignore_errors: true
       delegate_to: localhost
 
-    - name: output url
-      debug:
+    - name: Output url
+      ansible.builtin.debug:
         msg: "application is available at http://192.168.1.53"
       when: response is success

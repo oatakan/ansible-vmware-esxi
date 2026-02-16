@@ -1,0 +1,10 @@
+---
+- name: Ensure the iso file is unmounted
+  ansible.posix.mount:
+    path: "{{ vcsa_deploy_via_linux_host_iso_mount_dir }}"
+    state: unmounted
+
+- name: Ensure the mount directory doesn't exist
+  ansible.builtin.file:
+    path: "{{ vcsa_deploy_via_linux_host_iso_mount_dir }}"
+    state: absent

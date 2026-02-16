@@ -1,0 +1,47 @@
+---
+- name: Start vSwitch0 security policy update
+  community.vmware.vmware_vswitch:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    esxi_hostname: "{{ ansible_host }}"
+    switch_name: "vSwitch0"
+    validate_certs: false
+    state: present
+    network_policy:
+      promiscuous_mode: true
+      forged_transmits: true
+      mac_changes: true
+  async: "{{ vcenter_add_host_task_async_timeout | int }}"
+  poll: 0
+  register: vcenter_add_host_vswitch_async_job
+  failed_when: false
+  delegate_to: localhost
+
+- name: Compute vSwitch async wait controls
+  ansible.builtin.set_fact:
+    vcenter_add_host_vswitch_wait_delay: >-
+      {{ 1 if (vcenter_add_host_task_poll_interval | int) <= 0 else (vcenter_add_host_task_poll_interval | int) }}
+    vcenter_add_host_vswitch_wait_retries: >-
+      {{ [((vcenter_add_host_task_async_timeout | int) // (vcenter_add_host_vswitch_wait_delay | int)), 1] | max }}
+
+- name: Wait for vSwitch0 security policy update to finish
+  ansible.builtin.async_status:
+    jid: "{{ vcenter_add_host_vswitch_async_job.ansible_job_id }}"
+  register: vcenter_add_host_vswitch_async_result
+  until: vcenter_add_host_vswitch_async_result.finished
+  retries: "{{ vcenter_add_host_vswitch_wait_retries | int }}"
+  delay: "{{ vcenter_add_host_vswitch_wait_delay | int }}"
+  failed_when: false
+  changed_when: false
+  delegate_to: localhost
+
+- name: Report vSwitch0 policy update result
+  ansible.builtin.debug:
+    msg: >-
+      vSwitch0 policy update did not complete successfully (finished={{ vcenter_add_host_vswitch_async_result.finished | default(false) }},
+      rc={{ vcenter_add_host_vswitch_async_result.rc | default('n/a') }}).
+      Continuing because this step is non-blocking.
+  when:
+    - vcenter_add_host_vswitch_async_result is defined
+    - not (vcenter_add_host_vswitch_async_result.finished | default(false)) or (vcenter_add_host_vswitch_async_result.rc | default(1) | int != 0)

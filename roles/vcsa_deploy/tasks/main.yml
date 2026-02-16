@@ -1,0 +1,82 @@
+---
+- name: Normalize vcsa_deploy variables
+  ansible.builtin.set_fact:
+    vcsa_deploy_sso_password: "{{ sso_password | default(vcsa_deploy_sso_password) }}"
+    vcsa_deploy_sso_site_name: "{{ sso_site_name | default(vcsa_deploy_sso_site_name) }}"
+    vcsa_deploy_sso_domain_name: "{{ sso_domain_name | default(vcsa_deploy_sso_domain_name) }}"
+    vcsa_deploy_network_mount_dir: "{{ network_mount_dir | default(vcsa_deploy_network_mount_dir) }}"
+    vcsa_deploy_vcsa_iso: "{{ vcsa_iso | default(vcsa_deploy_vcsa_iso) }}"
+    vcsa_deploy_iso_mount_dir: "{{ iso_mount_dir | default(vcsa_deploy_iso_mount_dir) }}"
+    vcsa_deploy_ovftool: "{{ ovftool | default(vcsa_deploy_ovftool) }}"
+    vcsa_deploy_network_ip_scheme: "{{ network_ip_scheme | default(vcsa_deploy_network_ip_scheme) }}"
+    vcsa_deploy_disk_mode: "{{ disk_mode | default(vcsa_deploy_disk_mode) }}"
+    vcsa_deploy_vcenter_appliance_name: "{{ vcenter_appliance_name | default(vcsa_deploy_vcenter_appliance_name) }}"
+    vcsa_deploy_vcenter_appliance_size: "{{ vcenter_appliance_size | default(vcsa_deploy_vcenter_appliance_size) }}"
+    vcsa_deploy_target_esx_datastore: "{{ target_esx_datastore | default(vcsa_deploy_target_esx_datastore) }}"
+    vcsa_deploy_target_esx_portgroup: "{{ target_esx_portgroup | default(vcsa_deploy_target_esx_portgroup) }}"
+    vcsa_deploy_ssh_enable: "{{ ssh_enable | default(vcsa_deploy_ssh_enable) }}"
+    vcsa_deploy_time_tools_sync: "{{ time_tools_sync | default(vcsa_deploy_time_tools_sync) }}"
+    vcsa_deploy_net_addr_family: "{{ net_addr_family | default(vcsa_deploy_net_addr_family) }}"
+    vcsa_deploy_vcenter_ip_address: "{{ vcenter_ip_address | default(vcsa_deploy_vcenter_ip_address) }}"
+    vcsa_deploy_vcenter_username: "{{ vcenter_username | default(vcsa_deploy_vcenter_username) }}"
+    vcsa_deploy_vcenter_password: "{{ vcenter_password | default(vcsa_deploy_vcenter_password) }}"
+    vcsa_deploy_vcenter_ova_file: "{{ vcenter_ova_file | default(vcsa_deploy_vcenter_ova_file) }}"
+    vcsa_deploy_vcenter_fqdn: "{{ vcenter_fqdn | default(vcsa_deploy_vcenter_fqdn) }}"
+    vcsa_deploy_vcenter_netmask: "{{ vcenter_netmask | default(vcsa_deploy_vcenter_netmask) }}"
+    vcsa_deploy_vcenter_gateway: "{{ vcenter_gateway | default(vcsa_deploy_vcenter_gateway) }}"
+    vcsa_deploy_vcenter_net_prefix: "{{ vcenter_net_prefix | default(vcsa_deploy_vcenter_net_prefix) }}"
+    vcsa_deploy_dns_servers: "{{ dns_servers | default(vcsa_deploy_dns_servers) }}"
+    vcsa_deploy_ntp_servers: "{{ ntp_servers | default(vcsa_deploy_ntp_servers) }}"
+    vcsa_deploy_network_host: "{{ network_host | default(vcsa_deploy_network_host) }}"
+    vcsa_deploy_network_path: "{{ network_path | default(vcsa_deploy_network_path) }}"
+    vcsa_deploy_wait_for_connection_retries: "{{ wait_for_connection_retries | default(vcsa_deploy_wait_for_connection_retries) }}"
+    vcsa_deploy_wait_for_connection_delay: "{{ wait_for_connection_delay | default(vcsa_deploy_wait_for_connection_delay) }}"
+    vcsa_deploy_default_ports: "{{ default_ports | default(vcsa_deploy_default_ports) }}"
+    vcsa_deploy_ovftool_installer_zip_file: "{{ ovftool_installer_zip_file | default(vcsa_deploy_ovftool_installer_zip_file | default(omit)) }}"
+
+- name: Gather existing VM inventory
+  block:
+    - name: Gather information about VMs and templates
+      community.vmware.vmware_vm_info:
+        hostname: "{{ ansible_host }}"
+        username: root
+        password: "{{ ansible_password | default(ansible_ssh_password) }}"
+        validate_certs: false
+      delegate_to: localhost
+      register: vcsa_deploy_vm_facts
+  rescue:
+    - name: Set vm_facts for legacy Ansible versions
+      ansible.builtin.set_fact:
+        vcsa_deploy_vm_facts: { "virtual_machines": {} }
+      when: ansible_version.full is version('2.8.0', '<')
+
+    - name: Set vm_facts for modern Ansible versions
+      ansible.builtin.set_fact:
+        vcsa_deploy_vm_facts: { "virtual_machines": [] }
+      when: ansible_version.full is version('2.8.0', '>=')
+
+- name: Deploy VCSA when appliance is not present
+  when:
+    - >-
+      (ansible_version.full is version('2.8.0', '<') and
+      vcsa_deploy_vcenter_appliance_name not in vcsa_deploy_vm_facts.virtual_machines | list) or
+      (ansible_version.full is version('2.8.0', '>=') and
+      vcsa_deploy_vcenter_appliance_name not in
+      (vcsa_deploy_vm_facts.virtual_machines | map(attribute='guest_name') | list))
+  block:
+    - name: Deploy VCSA from datastore path
+      when: vcsa_deploy_vcenter_ova_file is not match('^https?://')
+      block:
+        - name: Mount NFS datastore
+          ansible.builtin.include_tasks: mount_nfs.yml
+        - name: Deploy VCSA from datastore OVA
+          ansible.builtin.include_tasks: deploy.yml
+        - name: Unmount NFS datastore
+          ansible.builtin.include_tasks: unmount_nfs.yml
+
+    - name: Deploy VCSA in pull-upload mode
+      ansible.builtin.include_tasks: deploy_pull_mode.yml
+      when: vcsa_deploy_vcenter_ova_file is match('^https?://')
+
+    - name: Wait for VCSA readiness
+      ansible.builtin.include_tasks: wait.yml

@@ -1,0 +1,19 @@
+---
+
+vcenter_configure_datacenter: cloud
+vcenter_configure_cluster: mylab
+vcenter_configure_enable_drs: true
+vcenter_configure_enable_vsan: false
+
+vcenter_configure_resource_pools:
+  - infra
+  - management
+  - manageto
+
+vcenter_configure_vm_folders:
+  - template
+  - redhat
+
+vcenter_configure_license: ""
+
+vcenter_configure_appliance_name: vcenter

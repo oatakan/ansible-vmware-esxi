@@ -1,0 +1,12 @@
+---
+- name: Wait for deployment to finish
+  ansible.builtin.uri:
+    url: https://{{ vcsa_deploy_vcenter_fqdn }}
+    return_content: false
+    validate_certs: false
+  delegate_to: localhost
+  register: vcsa_deploy_response
+  until: vcsa_deploy_response is success
+  retries: "{{ vcsa_deploy_wait_for_connection_retries }}"
+  delay: "{{ vcsa_deploy_wait_for_connection_delay }}"
+  ignore_errors: true

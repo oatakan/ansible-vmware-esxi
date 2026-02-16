@@ -1,0 +1,86 @@
+---
+- name: Normalize vcenter_configure variables
+  ansible.builtin.set_fact:
+    vcenter_configure_datacenter: "{{ vcenter_datacenter | default(vcenter_configure_datacenter) }}"
+    vcenter_configure_cluster: "{{ vcenter_cluster | default(vcenter_configure_cluster) }}"
+    vcenter_configure_enable_drs: "{{ enable_drs | default(vcenter_configure_enable_drs) }}"
+    vcenter_configure_enable_vsan: "{{ enable_vsan | default(vcenter_configure_enable_vsan) }}"
+    vcenter_configure_resource_pools: "{{ vcenter_resource_pools | default(vcenter_configure_resource_pools) }}"
+    vcenter_configure_vm_folders: "{{ vcenter_vm_folders | default(vcenter_configure_vm_folders) }}"
+    vcenter_configure_license: "{{ vcenter_license | default(vcenter_configure_license) }}"
+    vcenter_configure_appliance_name: "{{ vcenter_appliance_name | default(vcenter_configure_appliance_name) }}"
+
+- name: Ensure datacenter exists
+  community.vmware.vmware_datacenter:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: false
+    datacenter_name: "{{ vcenter_configure_datacenter }}"
+    state: present
+
+- name: Ensure cluster exists
+  vmware.vmware.cluster:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: false
+    datacenter_name: "{{ vcenter_configure_datacenter }}"
+    cluster_name: "{{ vcenter_configure_cluster }}"
+    state: present
+
+- name: Ensure DRS is enabled on the cluster
+  vmware.vmware.cluster_drs:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: false
+    datacenter_name: "{{ vcenter_configure_datacenter }}"
+    cluster_name: "{{ vcenter_configure_cluster }}"
+    enable: "{{ vcenter_configure_enable_drs }}"
+
+- name: Ensure vSAN is enabled on the cluster
+  community.vmware.vmware_cluster_vsan:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: false
+    datacenter_name: "{{ vcenter_configure_datacenter }}"
+    cluster_name: "{{ vcenter_configure_cluster }}"
+    enable: "{{ vcenter_configure_enable_vsan }}"
+  when: vcenter_configure_enable_vsan
+
+- name: Ensure resource pools exist
+  community.vmware.vmware_resource_pool:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: false
+    datacenter: "{{ vcenter_configure_datacenter }}"
+    cluster: "{{ vcenter_configure_cluster }}"
+    resource_pool: "{{ item }}"
+    state: present
+  loop: "{{ vcenter_configure_resource_pools }}"
+
+- name: Ensure folders exist
+  vmware.vmware.folder:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: false
+    datacenter: "{{ vcenter_configure_datacenter }}"
+    relative_path: "{{ item }}"
+    folder_type: vm
+    state: present
+  loop: "{{ vcenter_configure_vm_folders }}"
+
+- name: Add a new vCenter license
+  community.vmware.vcenter_license:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    license: "{{ vcenter_configure_license }}"
+    validate_certs: false
+    state: present
+  ignore_errors: true # noqa: ignore-errors
+  when: (vcenter_configure_license|length | default(0)) > 0 # noqa: yaml[empty-lines]

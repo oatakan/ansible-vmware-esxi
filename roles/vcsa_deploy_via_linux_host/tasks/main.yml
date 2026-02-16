@@ -1,0 +1,34 @@
+---
+- name: Normalize vcsa_deploy_via_linux_host variables
+  ansible.builtin.set_fact:
+    vcsa_deploy_via_linux_host_sso_password: "{{ sso_password | default(vcsa_deploy_via_linux_host_sso_password) }}"
+    vcsa_deploy_via_linux_host_sso_site_name: "{{ sso_site_name | default(vcsa_deploy_via_linux_host_sso_site_name) }}"
+    vcsa_deploy_via_linux_host_sso_domain_name: "{{ sso_domain_name | default(vcsa_deploy_via_linux_host_sso_domain_name) }}"
+    vcsa_deploy_via_linux_host_network_mount_dir: "{{ network_mount_dir | default(vcsa_deploy_via_linux_host_network_mount_dir) }}"
+    vcsa_deploy_via_linux_host_vcsa_iso: "{{ vcsa_iso | default(vcsa_deploy_via_linux_host_vcsa_iso) }}"
+    vcsa_deploy_via_linux_host_iso_mount_dir: "{{ iso_mount_dir | default(vcsa_deploy_via_linux_host_iso_mount_dir) }}"
+    vcsa_deploy_via_linux_host_network_ip_scheme: "{{ network_ip_scheme | default(vcsa_deploy_via_linux_host_network_ip_scheme) }}"
+    vcsa_deploy_via_linux_host_disk_mode: "{{ disk_mode | default(vcsa_deploy_via_linux_host_disk_mode) }}"
+    vcsa_deploy_via_linux_host_vcenter_appliance_name: "{{ vcenter_appliance_name | default(vcsa_deploy_via_linux_host_vcenter_appliance_name) }}"
+    vcsa_deploy_via_linux_host_vcenter_appliance_size: "{{ vcenter_appliance_size | default(vcsa_deploy_via_linux_host_vcenter_appliance_size) }}"
+    vcsa_deploy_via_linux_host_target_esx_datastore: "{{ target_esx_datastore | default(vcsa_deploy_via_linux_host_target_esx_datastore) }}"
+    vcsa_deploy_via_linux_host_target_esx_portgroup: "{{ target_esx_portgroup | default(vcsa_deploy_via_linux_host_target_esx_portgroup) }}"
+    vcsa_deploy_via_linux_host_ssh_enable: "{{ ssh_enable | default(vcsa_deploy_via_linux_host_ssh_enable) }}"
+    vcsa_deploy_via_linux_host_time_tools_sync: "{{ time_tools_sync | default(vcsa_deploy_via_linux_host_time_tools_sync) }}"
+    vcsa_deploy_via_linux_host_net_addr_family: "{{ net_addr_family | default(vcsa_deploy_via_linux_host_net_addr_family) }}"
+    vcsa_deploy_via_linux_host_vcenter_ip_address: "{{ vcenter_ip_address | default(vcsa_deploy_via_linux_host_vcenter_ip_address) }}"
+    vcsa_deploy_via_linux_host_vcenter_username: "{{ vcenter_username | default(vcsa_deploy_via_linux_host_vcenter_username) }}"
+    vcsa_deploy_via_linux_host_vcenter_password: "{{ vcenter_password | default(vcsa_deploy_via_linux_host_vcenter_password) }}"
+    vcsa_deploy_via_linux_host_vcenter_fqdn: "{{ vcenter_fqdn | default(vcsa_deploy_via_linux_host_vcenter_fqdn) }}"
+    vcsa_deploy_via_linux_host_vcenter_netmask: "{{ vcenter_netmask | default(vcsa_deploy_via_linux_host_vcenter_netmask) }}"
+    vcsa_deploy_via_linux_host_vcenter_gateway: "{{ vcenter_gateway | default(vcsa_deploy_via_linux_host_vcenter_gateway) }}"
+    vcsa_deploy_via_linux_host_vcenter_net_prefix: "{{ vcenter_net_prefix | default(vcsa_deploy_via_linux_host_vcenter_net_prefix) }}"
+    vcsa_deploy_via_linux_host_dns_servers: "{{ dns_servers | default(vcsa_deploy_via_linux_host_dns_servers) }}"
+    vcsa_deploy_via_linux_host_ntp_servers: "{{ ntp_servers | default(vcsa_deploy_via_linux_host_ntp_servers) }}"
+
+- name: Mount VCSA ISO
+  ansible.builtin.include_tasks: mount_iso.yml
+- name: Deploy VCSA appliance
+  ansible.builtin.include_tasks: deploy.yml
+- name: Unmount VCSA ISO
+  ansible.builtin.include_tasks: unmount_iso.yml

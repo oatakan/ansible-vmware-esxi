@@ -1,0 +1,58 @@
+---
+- name: Find ova file
+  ansible.builtin.find:
+    paths: "{{ vcsa_deploy_network_mount_dir }}/images"
+    patterns: '{{ vcsa_deploy_vcenter_ova_file | default("VMware-vCenter-Server-Appliance-6.7.0.30000*.ova") }}'
+  register: vcsa_deploy_ova_file
+
+- name: Deploy appliance
+  ansible.builtin.command: >
+    {{ vcsa_deploy_ovftool }}
+    --acceptAllEulas
+    --noSSLVerify
+    --X:injectOvfEnv
+    --allowExtraConfig
+    --X:enableHiddenProperties
+    --X:waitForIp
+    --X:connectionFileTransferRetryCount=3
+    --sourceType=OVA
+    --powerOn
+    --net:"Network 1"='{{ vcsa_deploy_target_esx_portgroup }}'
+    --datastore='{{ vcsa_deploy_target_esx_datastore }}'
+    --diskMode='{{ vcsa_deploy_disk_mode }}'
+    --deploymentOption="{{ vcsa_deploy_vcenter_appliance_size }}"
+    --prop:guestinfo.cis.appliance.root.shell=/bin/bash
+    --prop:guestinfo.cis.deployment.autoconfig=True
+    --prop:guestinfo.cis.silentinstall=False
+    --prop:guestinfo.cis.vmdir.domain-name="{{ vcsa_deploy_sso_domain_name }}"
+    --prop:guestinfo.cis.vmdir.site-name="{{ vcsa_deploy_sso_site_name }}"
+    --prop:guestinfo.cis.vmdir.username="{{ vcsa_deploy_vcenter_username }}"
+    --prop:guestinfo.cis.vmdir.password="{{ vcsa_deploy_sso_password }}"
+    --prop:guestinfo.cis.appliance.net.addr.family="{{ vcsa_deploy_net_addr_family }}"
+    --prop:guestinfo.cis.appliance.root.passwd="{{ vcsa_deploy_vcenter_password }}"
+    --prop:guestinfo.cis.appliance.ssh.enabled="{{ vcsa_deploy_ssh_enable }}"
+    --prop:guestinfo.cis.vmdir.first-instance=True
+    --prop:guestinfo.cis.ceip_enabled=True
+    --prop:guestinfo.cis.appliance.ntp.servers='{% for item in vcsa_deploy_ntp_servers %}{{ item }}{{ "," if not loop.last else "" }}{% endfor %}'
+    {% if vcsa_deploy_network_ip_scheme == "DHCP" %}
+    --prop:guestinfo.cis.appliance.net.mode="dhcp"
+    {% elif vcsa_deploy_network_ip_scheme == "static" %}
+    --name='{{ vcsa_deploy_vcenter_appliance_name }}'
+    --prop:guestinfo.cis.appliance.net.pnid="{{ vcsa_deploy_vcenter_fqdn }}"
+    --prop:guestinfo.cis.appliance.net.mode="static"
+    --prop:guestinfo.cis.appliance.net.addr="{{ vcsa_deploy_vcenter_ip_address | ansible.utils.ipaddr }}"
+    --prop:guestinfo.cis.appliance.net.prefix="{{ vcsa_deploy_vcenter_net_prefix }}"
+    --prop:guestinfo.cis.appliance.net.gateway="{{ vcsa_deploy_vcenter_gateway | ansible.utils.ipaddr }}"
+    --prop:guestinfo.cis.appliance.net.dns.servers='{% for item in vcsa_deploy_dns_servers %}{{ item }}{{ "," if not loop.last else "" }}{% endfor %}'
+    {% endif %}
+    '{{ vcsa_deploy_ova_file.files[0].path }}'
+    vi://"{{ deploy_esxi_user }}":"{{ deploy_esxi_password }}"@{{ ansible_host }}/
+  changed_when: true
+  when:
+    - vcsa_deploy_ova_file is success
+    - vcsa_deploy_ova_file.matched is defined
+    - vcsa_deploy_ova_file.matched | int > 0
+    - vcsa_deploy_ova_file.files is defined
+  vars:
+    deploy_esxi_user: "{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}"
+    deploy_esxi_password: "{{ ansible_password | default(ansible_ssh_password) | urlencode }}"

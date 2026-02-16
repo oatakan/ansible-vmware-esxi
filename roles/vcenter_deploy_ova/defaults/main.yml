@@ -1,0 +1,19 @@
+---
+
+vcenter_deploy_ova_path: images
+vcenter_deploy_ova_files: []
+vcenter_deploy_ova_network_mount_dir: /vmfs/volumes/nfs_vol01
+
+vcenter_deploy_ova_ovftool: "{{ vcenter_deploy_ova_network_mount_dir }}/images/ovftool/lin64/ovftool"
+
+vcenter_deploy_ova_disk_mode: thin
+
+vcenter_deploy_ova_target_esx_datastore: datastore1
+vcenter_deploy_ova_target_esx_portgroup: mgmt
+
+vcenter_deploy_ova_datacenter: cloud
+vcenter_deploy_ova_cluster: mylab
+
+vcenter_deploy_ova_default_ports:
+  http: 80
+  https: 443

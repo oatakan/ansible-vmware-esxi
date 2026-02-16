@@ -1,0 +1,54 @@
+---
+- name: Normalize vcenter_deploy_ova variables
+  ansible.builtin.set_fact:
+    vcenter_deploy_ova_path: "{{ ova_path | default(vcenter_deploy_ova_path) }}"
+    vcenter_deploy_ova_files: "{{ ova_files | default(vcenter_deploy_ova_files) }}"
+    vcenter_deploy_ova_network_mount_dir: "{{ network_mount_dir | default(vcenter_deploy_ova_network_mount_dir) }}"
+    vcenter_deploy_ova_ovftool: "{{ ovftool | default(vcenter_deploy_ova_ovftool) }}"
+    vcenter_deploy_ova_disk_mode: "{{ disk_mode | default(vcenter_deploy_ova_disk_mode) }}"
+    vcenter_deploy_ova_target_esx_datastore: "{{ target_esx_datastore | default(vcenter_deploy_ova_target_esx_datastore) }}"
+    vcenter_deploy_ova_target_esx_portgroup: "{{ target_esx_portgroup | default(vcenter_deploy_ova_target_esx_portgroup) }}"
+    vcenter_deploy_ova_datacenter: "{{ vcenter_datacenter | default(vcenter_deploy_ova_datacenter) }}"
+    vcenter_deploy_ova_cluster: "{{ vcenter_cluster | default(vcenter_deploy_ova_cluster) }}"
+    vcenter_deploy_ova_default_ports: "{{ default_ports | default(vcenter_deploy_ova_default_ports) }}"
+
+- name: Gather information about vms and templates
+  community.vmware.vmware_vm_info:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    validate_certs: false
+  delegate_to: localhost
+  register: vcenter_deploy_ova_vm_facts
+
+- name: Deploy OVA files from NFS paths
+  when:
+    - vcenter_deploy_ova_non_http_link_files is defined
+    - vcenter_deploy_ova_non_http_link_files | length
+
+  block:
+    - name: Mount NFS datastore
+      ansible.builtin.include_tasks: mount_nfs.yml
+    - name: Deploy VMs from non-HTTP OVA files
+      ansible.builtin.include_tasks: deploy.yml
+      loop: "{{ vcenter_deploy_ova_non_http_link_files }}"
+      when: item | basename | replace('.ova','') | replace('-ovf','') not in (vcenter_deploy_ova_vm_facts.virtual_machines | map(attribute='guest_name') | list)
+
+  always:
+    - name: Unmount NFS datastore
+      ansible.builtin.include_tasks: unmount_nfs.yml
+- name: Deploy OVA files from HTTP URLs
+  when:
+    - vcenter_deploy_ova_http_link_files is defined
+    - vcenter_deploy_ova_http_link_files | length
+  block:
+    - name: Show HTTP OVA source list
+      ansible.builtin.debug:
+        msg: "{{ vcenter_deploy_ova_http_link_files }}"
+
+    - name: Configure HTTP upload prerequisites
+      ansible.builtin.include_tasks: http_upload_setup.yml
+    - name: Deploy VMs from HTTP OVA files
+      ansible.builtin.include_tasks: deploy_pull_mode.yml
+      loop: "{{ vcenter_deploy_ova_http_link_files }}"
+      when: item | basename | replace('.ova','') | replace('-ovf','') not in (vcenter_deploy_ova_vm_facts.virtual_machines | map(attribute='guest_name') | list)

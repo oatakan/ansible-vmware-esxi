@@ -35,9 +35,6 @@
     vcsa_deploy_ovftool_installer_zip_file: "{{ ovftool_installer_zip_file | default(vcsa_deploy_ovftool_installer_zip_file | default(omit)) }}"
     vcsa_deploy_run_preflight: "{{ run_preflight | default(vcsa_deploy_run_preflight) }}"
     vcsa_deploy_preflight_fail_fast: "{{ preflight_fail_fast | default(vcsa_deploy_preflight_fail_fast) }}"
-    vcsa_deploy_preflight_restart_mgmt_agents: "{{ preflight_restart_mgmt_agents | default(vcsa_deploy_preflight_restart_mgmt_agents) }}"
-    vcsa_deploy_preflight_mgmt_restart_delay: "{{ preflight_mgmt_restart_delay | default(vcsa_deploy_preflight_mgmt_restart_delay) }}"
-    vcsa_deploy_preflight_require_vpxa: "{{ preflight_require_vpxa | default(vcsa_deploy_preflight_require_vpxa) }}"
 
 - name: Gather existing VM inventory
   block:

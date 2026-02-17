@@ -1,146 +1,13 @@
 ---
-- name: Check hostd status
-  ansible.builtin.command: /etc/init.d/hostd status
-  register: vcsa_deploy_preflight_hostd_status
-  changed_when: false
-  failed_when: false
-
-- name: Check vpxa status
-  ansible.builtin.command: /etc/init.d/vpxa status
-  register: vcsa_deploy_preflight_vpxa_status
-  changed_when: false
-  failed_when: false
-
-- name: Check hostd process presence
-  ansible.builtin.command: pgrep -f hostd
-  register: vcsa_deploy_preflight_hostd_pgrep
-  changed_when: false
-  failed_when: false
-
-- name: Check vpxa process presence
-  ansible.builtin.command: pgrep -f vpxa
-  register: vcsa_deploy_preflight_vpxa_pgrep
-  changed_when: false
-  failed_when: false
-
-- name: Evaluate management agent health
+- name: Determine deployment mode for preflight
   ansible.builtin.set_fact:
-    vcsa_deploy_preflight_hostd_running: >-
-      {{
-        (
-          (
-            (
-              (vcsa_deploy_preflight_hostd_status.stdout | default('')) ~ ' ' ~
-              (vcsa_deploy_preflight_hostd_status.stderr | default(''))
-            ) | lower | regex_search('running')
-          ) is not none
-        ) or
-        (vcsa_deploy_preflight_hostd_pgrep.rc | int == 0)
-      }}
-    vcsa_deploy_preflight_vpxa_running: >-
-      {{
-        (
-          (
-            (
-              (vcsa_deploy_preflight_vpxa_status.stdout | default('')) ~ ' ' ~
-              (vcsa_deploy_preflight_vpxa_status.stderr | default(''))
-            ) | lower | regex_search('running')
-          ) is not none
-        ) or
-        (vcsa_deploy_preflight_vpxa_pgrep.rc | int == 0)
-      }}
-
-- name: Restart hostd when unhealthy and recovery is enabled
-  ansible.builtin.command: /etc/init.d/hostd restart
-  register: vcsa_deploy_preflight_restart_hostd
-  changed_when: false
-  failed_when: false
-  when:
-    - vcsa_deploy_preflight_restart_mgmt_agents | bool
-    - not vcsa_deploy_preflight_hostd_running | bool
-
-- name: Restart vpxa when unhealthy and recovery is enabled
-  ansible.builtin.command: /etc/init.d/vpxa restart
-  register: vcsa_deploy_preflight_restart_vpxa
-  changed_when: false
-  failed_when: false
-  when:
-    - vcsa_deploy_preflight_restart_mgmt_agents | bool
-    - not vcsa_deploy_preflight_vpxa_running | bool
-
-- name: Wait after management agent restart
-  ansible.builtin.pause:
-    seconds: "{{ vcsa_deploy_preflight_mgmt_restart_delay | int }}"
-  when:
-    - vcsa_deploy_preflight_restart_mgmt_agents | bool
-    - >-
-      (not vcsa_deploy_preflight_hostd_running | bool) or
-      (not vcsa_deploy_preflight_vpxa_running | bool)
-
-- name: Re-check hostd status after restart attempt
-  ansible.builtin.command: /etc/init.d/hostd status
-  register: vcsa_deploy_preflight_hostd_status_after
-  changed_when: false
-  failed_when: false
-  when: vcsa_deploy_preflight_restart_mgmt_agents | bool
-
-- name: Re-check vpxa status after restart attempt
-  ansible.builtin.command: /etc/init.d/vpxa status
-  register: vcsa_deploy_preflight_vpxa_status_after
-  changed_when: false
-  failed_when: false
-  when: vcsa_deploy_preflight_restart_mgmt_agents | bool
-
-- name: Re-check hostd process after restart attempt
-  ansible.builtin.command: pgrep -f hostd
-  register: vcsa_deploy_preflight_hostd_pgrep_after
-  changed_when: false
-  failed_when: false
-  when: vcsa_deploy_preflight_restart_mgmt_agents | bool
-
-- name: Re-check vpxa process after restart attempt
-  ansible.builtin.command: pgrep -f vpxa
-  register: vcsa_deploy_preflight_vpxa_pgrep_after
-  changed_when: false
-  failed_when: false
-  when: vcsa_deploy_preflight_restart_mgmt_agents | bool
-
-- name: Finalize management agent health
-  ansible.builtin.set_fact:
-    vcsa_deploy_preflight_hostd_running_effective: >-
-      {{
-        (
-          (
-            (
-              (vcsa_deploy_preflight_hostd_status_after.stdout | default('')) ~ ' ' ~
-              (vcsa_deploy_preflight_hostd_status_after.stderr | default(''))
-            ) | lower | regex_search('running')
-          ) is not none
-        ) or
-        (vcsa_deploy_preflight_hostd_pgrep_after.rc | default(1) | int == 0)
-        if (vcsa_deploy_preflight_restart_mgmt_agents | bool)
-        else (vcsa_deploy_preflight_hostd_running | bool)
-      }}
-    vcsa_deploy_preflight_vpxa_running_effective: >-
-      {{
-        (
-          (
-            (
-              (vcsa_deploy_preflight_vpxa_status_after.stdout | default('')) ~ ' ' ~
-              (vcsa_deploy_preflight_vpxa_status_after.stderr | default(''))
-            ) | lower | regex_search('running')
-          ) is not none
-        ) or
-        (vcsa_deploy_preflight_vpxa_pgrep_after.rc | default(1) | int == 0)
-        if (vcsa_deploy_preflight_restart_mgmt_agents | bool)
-        else (vcsa_deploy_preflight_vpxa_running | bool)
-      }}
+    vcsa_deploy_preflight_pull_mode: "{{ vcsa_deploy_vcenter_ova_file is match('^https?://') }}"
 
 - name: Check ovftool presence for datastore-based deployment
   ansible.builtin.stat:
     path: "{{ vcsa_deploy_ovftool }}"
   register: vcsa_deploy_preflight_ovftool_stat
-  when: vcsa_deploy_vcenter_ova_file is not match('^https?://')
+  when: not vcsa_deploy_preflight_pull_mode | bool
 
 - name: Check OVA presence for datastore-based deployment
   ansible.builtin.find:
@@ -149,7 +16,16 @@
   register: vcsa_deploy_preflight_ova_find
   changed_when: false
   failed_when: false
-  when: vcsa_deploy_vcenter_ova_file is not match('^https?://')
+  when: not vcsa_deploy_preflight_pull_mode | bool
+
+- name: Check source OVA URL reachability from ESXi host for pull mode # noqa command-instead-of-module
+  ansible.builtin.command: >
+    wget --spider --server-response --no-check-certificate
+    '{{ vcsa_deploy_vcenter_ova_file }}'
+  register: vcsa_deploy_preflight_pull_source_reachability
+  changed_when: false
+  failed_when: false
+  when: vcsa_deploy_preflight_pull_mode | bool
 
 - name: Check target datastore visibility on ESXi host
   ansible.builtin.command: esxcli storage filesystem list
@@ -168,44 +44,45 @@
       {{
         (vcsa_deploy_preflight_ovftool_stat.stat.exists | default(false)) and
         (vcsa_deploy_preflight_ovftool_stat.stat.executable | default(false))
-        if (vcsa_deploy_vcenter_ova_file is not match('^https?://')) else true
+        if (not vcsa_deploy_preflight_pull_mode | bool) else true
       }}
     vcsa_deploy_preflight_ova_ready: >-
       {{
         (vcsa_deploy_preflight_ova_find is defined) and
         (vcsa_deploy_preflight_ova_find.matched | default(0) | int > 0)
-        if (vcsa_deploy_vcenter_ova_file is not match('^https?://')) else true
+        if (not vcsa_deploy_preflight_pull_mode | bool) else true
+      }}
+    vcsa_deploy_preflight_pull_source_ready: >-
+      {{
+        (vcsa_deploy_preflight_pull_source_reachability.rc | default(1) | int == 0)
+        if (vcsa_deploy_preflight_pull_mode | bool) else true
       }}
 
 - name: Show VCSA preflight summary
   ansible.builtin.debug:
     msg:
-      - "hostd_running_initial={{ vcsa_deploy_preflight_hostd_running | bool }}"
-      - "vpxa_running_initial={{ vcsa_deploy_preflight_vpxa_running | bool }}"
-      - "hostd_running_effective={{ vcsa_deploy_preflight_hostd_running_effective | bool }}"
-      - "vpxa_running_effective={{ vcsa_deploy_preflight_vpxa_running_effective | bool }}"
-      - "vpxa_required={{ vcsa_deploy_preflight_require_vpxa | bool }}"
+      - "pull_mode={{ vcsa_deploy_preflight_pull_mode | bool }}"
       - "datastore_visible={{ vcsa_deploy_preflight_datastore_visible | bool }}"
       - "ovftool_ready={{ vcsa_deploy_preflight_ovftool_ready | bool }}"
       - "ova_ready={{ vcsa_deploy_preflight_ova_ready | bool }}"
+      - "pull_source_ready={{ vcsa_deploy_preflight_pull_source_ready | bool }}"
 
 - name: Fail on preflight issues when fail-fast is enabled
   ansible.builtin.fail:
     msg: |-
       VCSA preflight failed.
-      hostd_running_initial={{ vcsa_deploy_preflight_hostd_running | bool }}
-      vpxa_running_initial={{ vcsa_deploy_preflight_vpxa_running | bool }}
-      hostd_running_effective={{ vcsa_deploy_preflight_hostd_running_effective | bool }}
-      vpxa_running_effective={{ vcsa_deploy_preflight_vpxa_running_effective | bool }}
-      vpxa_required={{ vcsa_deploy_preflight_require_vpxa | bool }}
+      pull_mode={{ vcsa_deploy_preflight_pull_mode | bool }}
       datastore_visible={{ vcsa_deploy_preflight_datastore_visible | bool }}
       ovftool_ready={{ vcsa_deploy_preflight_ovftool_ready | bool }}
       ova_ready={{ vcsa_deploy_preflight_ova_ready | bool }}
+      pull_source_ready={{ vcsa_deploy_preflight_pull_source_ready | bool }}
+      pull_source_check_output={{
+      (vcsa_deploy_preflight_pull_source_reachability.stdout | default('')) ~ ' ' ~
+      (vcsa_deploy_preflight_pull_source_reachability.stderr | default('')) }}
   when:
     - vcsa_deploy_preflight_fail_fast | bool
     - >-
-      (not vcsa_deploy_preflight_hostd_running_effective | bool) or
-      ((vcsa_deploy_preflight_require_vpxa | bool) and (not vcsa_deploy_preflight_vpxa_running_effective | bool)) or
       (not vcsa_deploy_preflight_datastore_visible | bool) or
-      (not vcsa_deploy_preflight_ovftool_ready | bool) or
-      (not vcsa_deploy_preflight_ova_ready | bool)
+      ((not vcsa_deploy_preflight_pull_mode | bool) and (not vcsa_deploy_preflight_ovftool_ready | bool)) or
+      ((not vcsa_deploy_preflight_pull_mode | bool) and (not vcsa_deploy_preflight_ova_ready | bool)) or
+      ((vcsa_deploy_preflight_pull_mode | bool) and (not vcsa_deploy_preflight_pull_source_ready | bool))

@@ -47,13 +47,8 @@ vcsa_deploy_network_path: ""
 
 vcsa_deploy_wait_for_connection_retries: 300
 vcsa_deploy_wait_for_connection_delay: 5
-vcsa_deploy_retry_on_http_404: true
-vcsa_deploy_http_404_retry_delay: 20
 vcsa_deploy_run_preflight: true
 vcsa_deploy_preflight_fail_fast: true
-vcsa_deploy_preflight_restart_mgmt_agents: true
-vcsa_deploy_preflight_mgmt_restart_delay: 15
-vcsa_deploy_preflight_require_vpxa: false
 
 vcsa_deploy_default_ports:
   http: 80

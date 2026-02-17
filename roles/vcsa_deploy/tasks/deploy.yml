@@ -72,7 +72,7 @@
               (
                 (vcsa_deploy_first_attempt.stdout | default('')) ~ ' ' ~
                 (vcsa_deploy_first_attempt.stderr | default(''))
-              ) | regex_search('(?i)(status\\s*404|vim\\.fault\\.httpfault)')
+              ) | regex_search('(?i)(status\s*404|vim\.fault\.httpfault)')
             ) is not none
           }}
 

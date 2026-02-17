@@ -84,9 +84,57 @@
               (
                 (vcsa_deploy_pull_first_attempt.stdout | default('')) ~ ' ' ~
                 (vcsa_deploy_pull_first_attempt.stderr | default(''))
-              ) | regex_search('(?i)(status\\s*404|vim\\.fault\\.httpfault)')
+              ) | regex_search('(?i)(status\s*404|vim\.fault\.httpfault)')
             ) is not none
           }}
+
+    - name: Show retry eligibility details for pull-upload deployment
+      ansible.builtin.debug:
+        msg:
+          - "first_attempt_rc={{ vcsa_deploy_pull_first_attempt.rc | default('n/a') }}"
+          - "retry_enabled={{ vcsa_deploy_retry_on_http_404 | bool }}"
+          - "retry_eligible_error_detected={{ vcsa_deploy_pull_http_404_detected | bool }}"
+
+    - name: Check ova-http-upload firewall rule on ESXi when first attempt fails
+      ansible.builtin.command: esxcli network firewall ruleset list
+      register: vcsa_deploy_pull_firewall_rulesets
+      changed_when: false
+      failed_when: false
+      when: vcsa_deploy_pull_first_attempt.rc | int != 0
+
+    - name: Check source OVA URL reachability from ESXi host when first attempt fails # noqa command-instead-of-module
+      ansible.builtin.command: >
+        wget --spider --server-response --timeout=10 --tries=1
+        '{{ vcsa_deploy_vcenter_ova_file }}'
+      register: vcsa_deploy_pull_source_reachability
+      changed_when: false
+      failed_when: false
+      when:
+        - vcsa_deploy_pull_first_attempt.rc | int != 0
+        - vcsa_deploy_vcenter_ova_file is match('^https?://')
+
+    - name: Collect recent hostd log lines when first attempt fails # noqa command-instead-of-shell
+      ansible.builtin.shell: tail -n 120 /var/log/hostd.log
+      register: vcsa_deploy_pull_hostd_log_tail
+      changed_when: false
+      failed_when: false
+      when: vcsa_deploy_pull_first_attempt.rc | int != 0
+
+    - name: Show pull-upload failure diagnostics
+      ansible.builtin.debug:
+        msg:
+          - "source_url_reachability_rc={{ vcsa_deploy_pull_source_reachability.rc | default('not-run') }}"
+          - >-
+            source_url_reachability_output={{
+            (vcsa_deploy_pull_source_reachability.stdout | default('')) ~ ' ' ~
+            (vcsa_deploy_pull_source_reachability.stderr | default('')) }}
+          - >-
+            firewall_ruleset_ova_http_upload={{
+            (vcsa_deploy_pull_firewall_rulesets.stdout | default("")) |
+            regex_search("(?im)^ova-http-upload\\s+\\S+\\s+\\S+") |
+            default("not-found") }}
+          - "hostd_log_tail={{ vcsa_deploy_pull_hostd_log_tail.stdout | default('') }}"
+      when: vcsa_deploy_pull_first_attempt.rc | int != 0
 
     - name: Restart hostd service before pull-upload retry
       ansible.builtin.command: /etc/init.d/hostd restart

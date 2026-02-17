@@ -18,15 +18,6 @@
   failed_when: false
   when: not vcsa_deploy_preflight_pull_mode | bool
 
-- name: Check source OVA URL reachability from ESXi host for pull mode # noqa command-instead-of-module
-  ansible.builtin.command: >
-    wget --spider --server-response --no-check-certificate
-    '{{ vcsa_deploy_vcenter_ova_file }}'
-  register: vcsa_deploy_preflight_pull_source_reachability
-  changed_when: false
-  failed_when: false
-  when: vcsa_deploy_preflight_pull_mode | bool
-
 - name: Check target datastore visibility on ESXi host
   ansible.builtin.command: esxcli storage filesystem list
   register: vcsa_deploy_preflight_fs
@@ -52,11 +43,6 @@
         (vcsa_deploy_preflight_ova_find.matched | default(0) | int > 0)
         if (not vcsa_deploy_preflight_pull_mode | bool) else true
       }}
-    vcsa_deploy_preflight_pull_source_ready: >-
-      {{
-        (vcsa_deploy_preflight_pull_source_reachability.rc | default(1) | int == 0)
-        if (vcsa_deploy_preflight_pull_mode | bool) else true
-      }}
 
 - name: Show VCSA preflight summary
   ansible.builtin.debug:
@@ -65,7 +51,6 @@
       - "datastore_visible={{ vcsa_deploy_preflight_datastore_visible | bool }}"
       - "ovftool_ready={{ vcsa_deploy_preflight_ovftool_ready | bool }}"
       - "ova_ready={{ vcsa_deploy_preflight_ova_ready | bool }}"
-      - "pull_source_ready={{ vcsa_deploy_preflight_pull_source_ready | bool }}"
 
 - name: Fail on preflight issues when fail-fast is enabled
   ansible.builtin.fail:
@@ -75,14 +60,9 @@
       datastore_visible={{ vcsa_deploy_preflight_datastore_visible | bool }}
       ovftool_ready={{ vcsa_deploy_preflight_ovftool_ready | bool }}
       ova_ready={{ vcsa_deploy_preflight_ova_ready | bool }}
-      pull_source_ready={{ vcsa_deploy_preflight_pull_source_ready | bool }}
-      pull_source_check_output={{
-      (vcsa_deploy_preflight_pull_source_reachability.stdout | default('')) ~ ' ' ~
-      (vcsa_deploy_preflight_pull_source_reachability.stderr | default('')) }}
   when:
     - vcsa_deploy_preflight_fail_fast | bool
     - >-
       (not vcsa_deploy_preflight_datastore_visible | bool) or
       ((not vcsa_deploy_preflight_pull_mode | bool) and (not vcsa_deploy_preflight_ovftool_ready | bool)) or
-      ((not vcsa_deploy_preflight_pull_mode | bool) and (not vcsa_deploy_preflight_ova_ready | bool)) or
-      ((vcsa_deploy_preflight_pull_mode | bool) and (not vcsa_deploy_preflight_pull_source_ready | bool))
+      ((not vcsa_deploy_preflight_pull_mode | bool) and (not vcsa_deploy_preflight_ova_ready | bool))

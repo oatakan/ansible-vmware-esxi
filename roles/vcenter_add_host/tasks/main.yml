@@ -7,9 +7,6 @@
     vcenter_add_host_target_esx_datastore: "{{ target_esx_datastore | default(vcenter_add_host_target_esx_datastore) }}"
     vcenter_add_host_configure_vswitch: "{{ configure_vswitch | default(vcenter_add_host_configure_vswitch) }}"
     vcenter_add_host_apply_license: "{{ apply_esxi_license | default(vcenter_add_host_apply_license) }}"
-    vcenter_add_host_task_async_timeout: "{{ task_async_timeout | default(vcenter_add_host_task_async_timeout) }}"
-    vcenter_add_host_task_poll_interval: "{{ task_poll_interval | default(vcenter_add_host_task_poll_interval) }}"
-
 # - name: obtain thumbprint
 #   command: openssl x509 -in /etc/vmware/ssl/rui.crt -fingerprint -sha1 -noout
 #   register: esxi_ssl_thumbprint
@@ -107,11 +104,7 @@
     username: "{{ lookup('env', 'VMWARE_USER') }}"
     password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
     license: "{{ esxi_license }}"
-    esxi_hostname: "{{ ansible_host }}"
-    validate_certs: false
     state: present
-  async: "{{ vcenter_add_host_task_async_timeout | int }}"
-  poll: "{{ vcenter_add_host_task_poll_interval | int }}"
   delegate_to: localhost
   ignore_errors: true # noqa: ignore-errors
   when:

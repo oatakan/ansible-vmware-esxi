@@ -18,10 +18,13 @@
   failed_when: false
   delegate_to: localhost
 
-- name: Compute vSwitch async wait controls
+- name: Compute vSwitch async wait delay
   ansible.builtin.set_fact:
     vcenter_add_host_vswitch_wait_delay: >-
       {{ 1 if (vcenter_add_host_task_poll_interval | int) <= 0 else (vcenter_add_host_task_poll_interval | int) }}
+
+- name: Compute vSwitch async wait retries
+  ansible.builtin.set_fact:
     vcenter_add_host_vswitch_wait_retries: >-
       {{ [((vcenter_add_host_task_async_timeout | int) // (vcenter_add_host_vswitch_wait_delay | int)), 1] | max }}
 

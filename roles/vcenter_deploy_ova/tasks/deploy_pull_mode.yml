@@ -1,7 +1,23 @@
 ---
+- name: Define pull-upload ovftool path on localhost
+  ansible.builtin.set_fact:
+    vcenter_deploy_ova_pull_ovftool: /tmp/ovftool/ovftool
+
+- name: Verify pull-upload ovftool binary exists on localhost
+  ansible.builtin.stat:
+    path: "{{ vcenter_deploy_ova_pull_ovftool }}"
+  register: vcenter_deploy_ova_pull_ovftool_stat
+  delegate_to: localhost
+  connection: local
+
+- name: Fail when pull-upload ovftool binary is missing
+  ansible.builtin.fail:
+    msg: "ovftool binary not found at {{ vcenter_deploy_ova_pull_ovftool }} after installation"
+  when: not vcenter_deploy_ova_pull_ovftool_stat.stat.exists
+
 - name: Deploy ovas
   ansible.builtin.command: >
-    {{ vcenter_deploy_ova_ovftool }}
+    {{ vcenter_deploy_ova_pull_ovftool }}
     --acceptAllEulas
     --noSSLVerify
     --X:injectOvfEnv

@@ -33,6 +33,10 @@
     vcsa_deploy_wait_for_connection_delay: "{{ wait_for_connection_delay | default(vcsa_deploy_wait_for_connection_delay) }}"
     vcsa_deploy_default_ports: "{{ default_ports | default(vcsa_deploy_default_ports) }}"
     vcsa_deploy_ovftool_installer_zip_file: "{{ ovftool_installer_zip_file | default(vcsa_deploy_ovftool_installer_zip_file | default(omit)) }}"
+    vcsa_deploy_run_preflight: "{{ run_preflight | default(vcsa_deploy_run_preflight) }}"
+    vcsa_deploy_preflight_fail_fast: "{{ preflight_fail_fast | default(vcsa_deploy_preflight_fail_fast) }}"
+    vcsa_deploy_preflight_restart_mgmt_agents: "{{ preflight_restart_mgmt_agents | default(vcsa_deploy_preflight_restart_mgmt_agents) }}"
+    vcsa_deploy_preflight_mgmt_restart_delay: "{{ preflight_mgmt_restart_delay | default(vcsa_deploy_preflight_mgmt_restart_delay) }}"
 
 - name: Gather existing VM inventory
   block:
@@ -64,6 +68,10 @@
       vcsa_deploy_vcenter_appliance_name not in
       (vcsa_deploy_vm_facts.virtual_machines | map(attribute='guest_name') | list))
   block:
+    - name: Run VCSA preflight checks
+      ansible.builtin.include_tasks: preflight.yml
+      when: vcsa_deploy_run_preflight | bool
+
     - name: Deploy VCSA from datastore path
       when: vcsa_deploy_vcenter_ova_file is not match('^https?://')
       block:

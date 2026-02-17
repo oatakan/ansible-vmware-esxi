@@ -5,49 +5,7 @@
     patterns: '{{ vcsa_deploy_vcenter_ova_file | default("VMware-vCenter-Server-Appliance-6.7.0.30000*.ova") }}'
   register: vcsa_deploy_ova_file
 
-- name: Deploy appliance
-  ansible.builtin.command: >
-    {{ vcsa_deploy_ovftool }}
-    --acceptAllEulas
-    --noSSLVerify
-    --X:injectOvfEnv
-    --allowExtraConfig
-    --X:enableHiddenProperties
-    --X:waitForIp
-    --X:connectionFileTransferRetryCount=3
-    --sourceType=OVA
-    --powerOn
-    --net:"Network 1"='{{ vcsa_deploy_target_esx_portgroup }}'
-    --datastore='{{ vcsa_deploy_target_esx_datastore }}'
-    --diskMode='{{ vcsa_deploy_disk_mode }}'
-    --deploymentOption="{{ vcsa_deploy_vcenter_appliance_size }}"
-    --prop:guestinfo.cis.appliance.root.shell=/bin/bash
-    --prop:guestinfo.cis.deployment.autoconfig=True
-    --prop:guestinfo.cis.silentinstall=False
-    --prop:guestinfo.cis.vmdir.domain-name="{{ vcsa_deploy_sso_domain_name }}"
-    --prop:guestinfo.cis.vmdir.site-name="{{ vcsa_deploy_sso_site_name }}"
-    --prop:guestinfo.cis.vmdir.username="{{ vcsa_deploy_vcenter_username }}"
-    --prop:guestinfo.cis.vmdir.password="{{ vcsa_deploy_sso_password }}"
-    --prop:guestinfo.cis.appliance.net.addr.family="{{ vcsa_deploy_net_addr_family }}"
-    --prop:guestinfo.cis.appliance.root.passwd="{{ vcsa_deploy_vcenter_password }}"
-    --prop:guestinfo.cis.appliance.ssh.enabled="{{ vcsa_deploy_ssh_enable }}"
-    --prop:guestinfo.cis.vmdir.first-instance=True
-    --prop:guestinfo.cis.ceip_enabled=True
-    --prop:guestinfo.cis.appliance.ntp.servers='{% for item in vcsa_deploy_ntp_servers %}{{ item }}{{ "," if not loop.last else "" }}{% endfor %}'
-    {% if vcsa_deploy_network_ip_scheme == "DHCP" %}
-    --prop:guestinfo.cis.appliance.net.mode="dhcp"
-    {% elif vcsa_deploy_network_ip_scheme == "static" %}
-    --name='{{ vcsa_deploy_vcenter_appliance_name }}'
-    --prop:guestinfo.cis.appliance.net.pnid="{{ vcsa_deploy_vcenter_fqdn }}"
-    --prop:guestinfo.cis.appliance.net.mode="static"
-    --prop:guestinfo.cis.appliance.net.addr="{{ vcsa_deploy_vcenter_ip_address | ansible.utils.ipaddr }}"
-    --prop:guestinfo.cis.appliance.net.prefix="{{ vcsa_deploy_vcenter_net_prefix }}"
-    --prop:guestinfo.cis.appliance.net.gateway="{{ vcsa_deploy_vcenter_gateway | ansible.utils.ipaddr }}"
-    --prop:guestinfo.cis.appliance.net.dns.servers='{% for item in vcsa_deploy_dns_servers %}{{ item }}{{ "," if not loop.last else "" }}{% endfor %}'
-    {% endif %}
-    '{{ vcsa_deploy_ova_file.files[0].path }}'
-    vi://"{{ deploy_esxi_user }}":"{{ deploy_esxi_password }}"@{{ ansible_host }}/
-  changed_when: true
+- name: Deploy appliance with HTTP 404 recovery
   when:
     - vcsa_deploy_ova_file is success
     - vcsa_deploy_ova_file.matched is defined
@@ -56,3 +14,157 @@
   vars:
     deploy_esxi_user: "{{ ansible_user | default(ansible_ssh_user) | default('root') | urlencode }}"
     deploy_esxi_password: "{{ ansible_password | default(ansible_ssh_password) | urlencode }}"
+  block:
+    - name: Deploy appliance (first attempt)
+      ansible.builtin.command: >
+        {{ vcsa_deploy_ovftool }}
+        --acceptAllEulas
+        --noSSLVerify
+        --X:injectOvfEnv
+        --allowExtraConfig
+        --X:enableHiddenProperties
+        --X:waitForIp
+        --X:connectionFileTransferRetryCount=3
+        --sourceType=OVA
+        --powerOn
+        --net:"Network 1"='{{ vcsa_deploy_target_esx_portgroup }}'
+        --datastore='{{ vcsa_deploy_target_esx_datastore }}'
+        --diskMode='{{ vcsa_deploy_disk_mode }}'
+        --deploymentOption="{{ vcsa_deploy_vcenter_appliance_size }}"
+        --prop:guestinfo.cis.appliance.root.shell=/bin/bash
+        --prop:guestinfo.cis.deployment.autoconfig=True
+        --prop:guestinfo.cis.silentinstall=False
+        --prop:guestinfo.cis.vmdir.domain-name="{{ vcsa_deploy_sso_domain_name }}"
+        --prop:guestinfo.cis.vmdir.site-name="{{ vcsa_deploy_sso_site_name }}"
+        --prop:guestinfo.cis.vmdir.username="{{ vcsa_deploy_vcenter_username }}"
+        --prop:guestinfo.cis.vmdir.password="{{ vcsa_deploy_sso_password }}"
+        --prop:guestinfo.cis.appliance.net.addr.family="{{ vcsa_deploy_net_addr_family }}"
+        --prop:guestinfo.cis.appliance.root.passwd="{{ vcsa_deploy_vcenter_password }}"
+        --prop:guestinfo.cis.appliance.ssh.enabled="{{ vcsa_deploy_ssh_enable }}"
+        --prop:guestinfo.cis.vmdir.first-instance=True
+        --prop:guestinfo.cis.ceip_enabled=True
+        --prop:guestinfo.cis.appliance.ntp.servers='{% for item in vcsa_deploy_ntp_servers %}{{ item }}{{ "," if not loop.last else "" }}{% endfor %}'
+        {% if vcsa_deploy_network_ip_scheme == "DHCP" %}
+        --prop:guestinfo.cis.appliance.net.mode="dhcp"
+        {% elif vcsa_deploy_network_ip_scheme == "static" %}
+        --name='{{ vcsa_deploy_vcenter_appliance_name }}'
+        --prop:guestinfo.cis.appliance.net.pnid="{{ vcsa_deploy_vcenter_fqdn }}"
+        --prop:guestinfo.cis.appliance.net.mode="static"
+        --prop:guestinfo.cis.appliance.net.addr="{{ vcsa_deploy_vcenter_ip_address | ansible.utils.ipaddr }}"
+        --prop:guestinfo.cis.appliance.net.prefix="{{ vcsa_deploy_vcenter_net_prefix }}"
+        --prop:guestinfo.cis.appliance.net.gateway="{{ vcsa_deploy_vcenter_gateway | ansible.utils.ipaddr }}"
+        --prop:guestinfo.cis.appliance.net.dns.servers='{% for item in vcsa_deploy_dns_servers %}{{ item }}{{ "," if not loop.last else "" }}{% endfor %}'
+        {% endif %}
+        '{{ vcsa_deploy_ova_file.files[0].path }}'
+        vi://"{{ deploy_esxi_user }}":"{{ deploy_esxi_password }}"@{{ ansible_host }}/
+      register: vcsa_deploy_first_attempt
+      changed_when: true
+      failed_when: false
+
+    - name: Detect HttpFault 404 from first attempt
+      ansible.builtin.set_fact:
+        vcsa_deploy_first_attempt_output: >-
+          {{ vcsa_deploy_first_attempt.stdout | default('') }}
+          {{ vcsa_deploy_first_attempt.stderr | default('') }}
+        vcsa_deploy_http_404_detected: >-
+          {{
+            (
+              (
+                (vcsa_deploy_first_attempt.stdout | default('')) ~ ' ' ~
+                (vcsa_deploy_first_attempt.stderr | default(''))
+              ) | regex_search('(?i)(status\\s*404|vim\\.fault\\.httpfault)')
+            ) is not none
+          }}
+
+    - name: Restart hostd service before retry
+      ansible.builtin.command: /etc/init.d/hostd restart
+      register: vcsa_deploy_restart_hostd
+      changed_when: false
+      failed_when: false
+      when:
+        - vcsa_deploy_retry_on_http_404 | bool
+        - vcsa_deploy_first_attempt.rc | int != 0
+        - vcsa_deploy_http_404_detected | bool
+
+    - name: Restart vpxa service before retry
+      ansible.builtin.command: /etc/init.d/vpxa restart
+      register: vcsa_deploy_restart_vpxa
+      changed_when: false
+      failed_when: false
+      when:
+        - vcsa_deploy_retry_on_http_404 | bool
+        - vcsa_deploy_first_attempt.rc | int != 0
+        - vcsa_deploy_http_404_detected | bool
+
+    - name: Wait before retrying deployment
+      ansible.builtin.pause:
+        seconds: "{{ vcsa_deploy_http_404_retry_delay | int }}"
+      when:
+        - vcsa_deploy_retry_on_http_404 | bool
+        - vcsa_deploy_first_attempt.rc | int != 0
+        - vcsa_deploy_http_404_detected | bool
+
+    - name: Deploy appliance (retry after HttpFault 404)
+      ansible.builtin.command: >
+        {{ vcsa_deploy_ovftool }}
+        --acceptAllEulas
+        --noSSLVerify
+        --X:injectOvfEnv
+        --allowExtraConfig
+        --X:enableHiddenProperties
+        --X:waitForIp
+        --X:connectionFileTransferRetryCount=3
+        --sourceType=OVA
+        --powerOn
+        --net:"Network 1"='{{ vcsa_deploy_target_esx_portgroup }}'
+        --datastore='{{ vcsa_deploy_target_esx_datastore }}'
+        --diskMode='{{ vcsa_deploy_disk_mode }}'
+        --deploymentOption="{{ vcsa_deploy_vcenter_appliance_size }}"
+        --prop:guestinfo.cis.appliance.root.shell=/bin/bash
+        --prop:guestinfo.cis.deployment.autoconfig=True
+        --prop:guestinfo.cis.silentinstall=False
+        --prop:guestinfo.cis.vmdir.domain-name="{{ vcsa_deploy_sso_domain_name }}"
+        --prop:guestinfo.cis.vmdir.site-name="{{ vcsa_deploy_sso_site_name }}"
+        --prop:guestinfo.cis.vmdir.username="{{ vcsa_deploy_vcenter_username }}"
+        --prop:guestinfo.cis.vmdir.password="{{ vcsa_deploy_sso_password }}"
+        --prop:guestinfo.cis.appliance.net.addr.family="{{ vcsa_deploy_net_addr_family }}"
+        --prop:guestinfo.cis.appliance.root.passwd="{{ vcsa_deploy_vcenter_password }}"
+        --prop:guestinfo.cis.appliance.ssh.enabled="{{ vcsa_deploy_ssh_enable }}"
+        --prop:guestinfo.cis.vmdir.first-instance=True
+        --prop:guestinfo.cis.ceip_enabled=True
+        --prop:guestinfo.cis.appliance.ntp.servers='{% for item in vcsa_deploy_ntp_servers %}{{ item }}{{ "," if not loop.last else "" }}{% endfor %}'
+        {% if vcsa_deploy_network_ip_scheme == "DHCP" %}
+        --prop:guestinfo.cis.appliance.net.mode="dhcp"
+        {% elif vcsa_deploy_network_ip_scheme == "static" %}
+        --name='{{ vcsa_deploy_vcenter_appliance_name }}'
+        --prop:guestinfo.cis.appliance.net.pnid="{{ vcsa_deploy_vcenter_fqdn }}"
+        --prop:guestinfo.cis.appliance.net.mode="static"
+        --prop:guestinfo.cis.appliance.net.addr="{{ vcsa_deploy_vcenter_ip_address | ansible.utils.ipaddr }}"
+        --prop:guestinfo.cis.appliance.net.prefix="{{ vcsa_deploy_vcenter_net_prefix }}"
+        --prop:guestinfo.cis.appliance.net.gateway="{{ vcsa_deploy_vcenter_gateway | ansible.utils.ipaddr }}"
+        --prop:guestinfo.cis.appliance.net.dns.servers='{% for item in vcsa_deploy_dns_servers %}{{ item }}{{ "," if not loop.last else "" }}{% endfor %}'
+        {% endif %}
+        '{{ vcsa_deploy_ova_file.files[0].path }}'
+        vi://"{{ deploy_esxi_user }}":"{{ deploy_esxi_password }}"@{{ ansible_host }}/
+      register: vcsa_deploy_retry_attempt
+      changed_when: true
+      failed_when: false
+      when:
+        - vcsa_deploy_retry_on_http_404 | bool
+        - vcsa_deploy_first_attempt.rc | int != 0
+        - vcsa_deploy_http_404_detected | bool
+
+    - name: Fail deployment if attempt(s) did not succeed
+      ansible.builtin.fail:
+        msg: |-
+          VCSA deployment failed.
+          first_attempt_rc={{ vcsa_deploy_first_attempt.rc | default('n/a') }}
+          retry_attempt_rc={{ vcsa_deploy_retry_attempt.rc | default('not-run') }}
+          first_attempt_output={{ vcsa_deploy_first_attempt_output | default('') }}
+          retry_attempt_output={{ (vcsa_deploy_retry_attempt.stdout | default('')) ~ ' ' ~ (vcsa_deploy_retry_attempt.stderr | default('')) }}
+      when:
+        - vcsa_deploy_first_attempt.rc | int != 0
+        - >-
+          (not (vcsa_deploy_retry_on_http_404 | bool)) or
+          (not (vcsa_deploy_http_404_detected | bool)) or
+          ((vcsa_deploy_retry_attempt.rc | default(1) | int) != 0)

@@ -5,7 +5,7 @@
     patterns: '{{ vcsa_deploy_vcenter_ova_file | default("VMware-vCenter-Server-Appliance-6.7.0.30000*.ova") }}'
   register: vcsa_deploy_ova_file
 
-- name: Deploy appliance with HTTP 404 recovery
+- name: Deploy appliance with retry and service refresh
   when:
     - vcsa_deploy_ova_file is success
     - vcsa_deploy_ova_file.matched is defined
@@ -61,7 +61,7 @@
       changed_when: true
       failed_when: false
 
-    - name: Detect HttpFault 404 from first attempt
+    - name: Detect retry-eligible transfer error from first attempt
       ansible.builtin.set_fact:
         vcsa_deploy_first_attempt_output: >-
           {{ vcsa_deploy_first_attempt.stdout | default('') }}
@@ -104,7 +104,7 @@
         - vcsa_deploy_first_attempt.rc | int != 0
         - vcsa_deploy_http_404_detected | bool
 
-    - name: Deploy appliance (retry after HttpFault 404)
+    - name: Deploy appliance (retry attempt)
       ansible.builtin.command: >
         {{ vcsa_deploy_ovftool }}
         --acceptAllEulas
